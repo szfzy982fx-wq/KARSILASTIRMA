@@ -3,563 +3,386 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emlak Portföy Yöneticisi v5 (Net m² Analizli)</title>
+    <title>Emlak Analiz v6 (Kesin Çözüm)</title>
     <style>
         :root {
-            --primary: #2c3e50; /* Lacivert */
+            --primary: #2c3e50;
             --secondary: #34495e;
-            --accent: #27ae60; /* Yeşil */
-            --danger: #c0392b; /* Kırmızı */
-            --light: #ecf0f1;
-            --btn-link: #3498db;
+            --accent: #27ae60; /* Koyu Yeşil */
+            --highlight-bg: #dff9fb; /* Çok açık mavi (Okunabilirlik için) */
+            --danger: #c0392b;
+            --light: #f1f2f6;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f6fa;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: #dfe6e9; padding: 20px; color: #2d3436; }
 
-        /* --- KONTROL PANELİ --- */
+        /* PANEL TASARIMI */
         .control-panel {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
+            background: white; padding: 25px; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px;
+            max-width: 1200px; margin-left: auto; margin-right: auto;
+        }
+        
+        .input-group textarea {
+            width: 100%; height: 100px; padding: 10px;
+            border: 2px solid #eee; border-radius: 5px;
+            font-family: monospace; font-size: 12px;
         }
 
-        h3 { margin-top: 0; color: var(--primary); }
-
-        .input-area textarea {
-            width: 100%;
-            height: 80px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 11px;
-            margin-bottom: 10px;
-            background: #fafafa;
-            box-sizing: border-box;
-        }
-
-        /* Butonlar */
         .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: 0.2s;
-            white-space: nowrap;
+            border: none; padding: 12px 25px; border-radius: 6px;
+            cursor: pointer; font-weight: bold; transition: 0.2s;
+            color: white; margin-right: 5px;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--secondary); }
-        .btn-success { background: var(--accent); color: white; }
-        .btn-danger { background: var(--danger); color: white; font-size: 11px; padding: 5px 10px; }
-        
-        .panel-row { display: flex; gap: 20px; }
-        .panel-col { flex: 1; }
+        .btn-add { background: var(--primary); }
+        .btn-add:hover { background: var(--secondary); }
+        .btn-report { background: var(--accent); }
+        .btn-clear { background: var(--danger); }
+        .btn-print { background: #3498db; }
 
-        /* Liste */
-        .portfolio-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 15px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            background: var(--light);
-            border-radius: 6px;
+        /* LİSTE */
+        .portfolio-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px; margin-top: 20px;
+            max-height: 300px; overflow-y: auto;
         }
-        .portfolio-item {
-            background: white;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .portfolio-item label {
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            flex-grow: 1;
-            overflow: hidden;
+        .item-card {
+            background: #fff; padding: 10px; border-radius: 5px;
+            border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* --- RAPOR --- */
+        /* RAPOR ALANI */
         .report-page {
-            max-width: 297mm; /* A4 Yatay */
-            margin: 0 auto 30px auto;
-            background: white;
-            padding: 20px 40px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            min-height: 190mm;
-            position: relative;
-            box-sizing: border-box;
+            background: white; width: 100%; max-width: 297mm;
+            min-height: 210mm; margin: 0 auto 30px auto;
+            padding: 15mm; box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative; box-sizing: border-box;
         }
 
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            min-width: 800px;
-            table-layout: fixed;
-        }
-
+        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        
         th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-            vertical-align: middle;
-            word-wrap: break-word;
+            border: 1px solid #b2bec3; padding: 8px;
+            text-align: center; vertical-align: middle; word-wrap: break-word;
         }
 
+        /* Sol Sütun (Özellikler) */
         .col-feature {
-            width: 140px;
-            background-color: var(--primary);
-            color: white;
-            font-weight: bold;
-            text-align: left;
-            position: sticky;
-            left: 0;
-            z-index: 5;
+            background: var(--primary); color: white; font-weight: bold;
+            width: 150px; text-align: left; padding-left: 15px;
         }
 
-        thead th {
-            background-color: var(--secondary);
-            color: white;
-            height: 45px;
-            position: relative;
-        }
+        /* Başlıklar */
+        thead th { background: var(--secondary); color: white; height: 50px; position: relative; }
 
-        .delete-col-btn {
-            position: absolute;
-            top: -10px; right: -10px;
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            width: 22px; height: 22px;
+        /* SİLME BUTONU (X) */
+        .del-col {
+            position: absolute; top: -10px; right: -10px;
+            background: var(--danger); color: white;
+            width: 20px; height: 20px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            border: 2px solid white;
-            z-index: 10;
+            cursor: pointer; font-size: 12px; border: 2px solid white;
         }
 
-        .ad-link-btn {
-            display: inline-block;
-            background-color: var(--btn-link);
-            color: white !important;
-            text-decoration: none;
-            padding: 6px 12px;
-            border-radius: 15px;
-            margin-top: 5px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        /* --- VURGULAMALAR --- */
-        /* Ortak Avantaj Stili (Yeşil) */
-        .advantage-cell {
-            background-color: #e8f8f5 !important;
-            color: #27ae60 !important;
-            font-weight: 800;
-            border: 2px solid #27ae60;
-            position: relative;
-        }
+        /* --- KRİTİK BÖLÜM: RENKLENDİRME --- */
         
-        /* İkonlar */
-        .advantage-cell::after {
-            position: absolute;
-            top: 2px; right: 2px;
-            font-size: 10px;
-        }
-        
-        /* İkon Tipleri */
-        .type-price::after { content: '📉'; } /* Düşük Fiyat */
-        .type-size::after { content: '📐'; } /* Geniş Ev */
-        .type-age::after { content: '🆕'; } /* Yeni Bina */
-
-        .page-break {
-            height: 20px; background: #eee; margin: 20px 0;
-            text-align: center; line-height: 20px; color: #777; font-size: 10px;
+        /* 1. DÜŞÜK FİYAT & BİRİM FİYAT & YAŞ (YEŞİL) */
+        .highlight-green {
+            background-color: #d1f2eb !important; /* Açık Nane Yeşili */
+            color: #009432 !important; /* Koyu Yeşil Yazı */
+            font-weight: 900 !important;
+            border: 2px solid #009432 !important;
         }
 
-        @media screen and (max-width: 768px) {
-            .panel-row { flex-direction: column; }
-            .report-page { padding: 10px; width: 100%; }
-            .delete-col-btn { right: -5px; top: -10px; }
+        /* 2. BÜYÜK M2 (FARKLI YEŞİL) */
+        .highlight-blue {
+            background-color: #d1f2eb !important; 
+            color: #009432 !important;
+            font-weight: 900 !important;
+            border: 2px solid #009432 !important;
+        }
+
+        .icon-badge { display: block; font-size: 14px; margin-bottom: 2px; }
+
+        /* Link Butonu */
+        .link-btn {
+            display: inline-block; background: #3498db; color: white !important;
+            text-decoration: none; padding: 4px 10px; border-radius: 12px;
+            font-size: 10px; margin-top: 5px;
+        }
+
+        /* DEBUG BİLGİSİ */
+        .debug-info {
+            margin-top: 20px; padding: 10px; background: #ffeaa7; 
+            font-size: 11px; color: #d35400; border-radius: 4px; display: none;
         }
 
         @media print {
-            body { padding: 0; background: white; }
-            .control-panel, .page-break, .delete-col-btn { display: none !important; }
-            .report-page { 
-                box-shadow: none; margin: 0; padding: 10mm; width: 100%; max-width: 100%; 
-                page-break-after: always;
-            }
-            .report-page:last-child { page-break-after: auto; }
-            .table-wrapper { overflow: visible; }
-            .ad-link-btn {
-                background: transparent; color: var(--primary) !important;
-                border: 1px solid var(--primary); padding: 2px 8px;
-            }
-            .advantage-cell { background-color: #f0fff4 !important; border-width: 1px; }
-            @page { size: A4 landscape; margin: 0; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { background: white; padding: 0; }
+            .control-panel, .del-col { display: none !important; }
+            .report-page { box-shadow: none; margin: 0; width: 100%; }
+            .highlight-green, .highlight-blue { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { size: A4 landscape; margin: 5mm; }
         }
     </style>
 </head>
 <body>
 
 <div class="control-panel">
-    <div class="panel-row">
-        <div class="panel-col">
-            <h3>1. Veri Girişi (JSON)</h3>
-            <div class="input-area">
-                <textarea id="jsonInput" placeholder="JSON kodunu buraya yapıştırın..."></textarea>
-                <div style="margin-top:5px;">
-                    <button class="btn btn-primary" onclick="jsonHavuzaEkle()">📥 Havuza Ekle</button>
-                    <span id="statusMsg" style="font-size:12px; color:green; margin-left:10px;"></span>
-                </div>
+    <h3>🚀 Gayrimenkul Analiz v6</h3>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+            <p style="margin-top:0; font-size:12px; color:#666;">JSON kodunu yapıştırın:</p>
+            <div class="input-group">
+                <textarea id="jsonInput" placeholder='{"basliklar": {...}, "satirlar": [...]}'></textarea>
+            </div>
+            <div style="margin-top: 10px;">
+                <button class="btn btn-add" onclick="addData()">Listeye Ekle (+)</button>
+                <span id="msg" style="color: green; font-size: 12px; font-weight: bold;"></span>
             </div>
         </div>
-        <div class="panel-col">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>2. Portföy</h3>
-                <button class="btn btn-danger" onclick="havuzuTemizle()">Tümünü Sil</button>
+        <div style="flex: 1; min-width: 300px;">
+            <div style="display: flex; justify-content: space-between;">
+                <p style="margin-top:0; font-size:12px; color:#666;">Portföy Listesi:</p>
+                <button class="btn btn-clear" style="padding: 5px 10px; font-size:11px;" onclick="clearAll()">Temizle</button>
             </div>
-            <div id="portfolioList" class="portfolio-list">
-                <div style="color:#999; padding:10px; font-size:12px;">Liste boş.</div>
-            </div>
-            <div style="margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
-                <button class="btn btn-success" onclick="raporuOlustur()">📊 Raporla</button>
-                <button class="btn btn-primary" onclick="window.print()">🖨️ PDF İndir</button>
+            <div class="portfolio-grid" id="listArea"></div>
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-report" onclick="renderReport()">📊 Raporla</button>
+                <button class="btn btn-print" onclick="window.print()">🖨️ PDF İndir</button>
             </div>
         </div>
     </div>
 </div>
 
-<div id="reportContainer">
-    <div style="text-align:center; padding:50px; color:#aaa; border: 2px dashed #ddd; margin: 20px auto; max-width: 800px;">
-        <h3>Rapor Önizleme</h3>
-        <p>İlanları seçip "Raporla" butonuna basınız.</p>
-    </div>
-</div>
+<div id="reportContainer"></div>
 
 <script>
-    const STORAGE_KEY = 'emlak_v5_net_m2';
-    let globalPortfolio = [];
+    const STORAGE_KEY = 'emlak_v6_final';
+    let portfolio = [];
 
-    window.onload = function() {
+    // --- YÜKLEME ---
+    window.onload = () => {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if(saved) {
-            globalPortfolio = JSON.parse(saved);
-            renderList();
+        if (saved) { portfolio = JSON.parse(saved); updateList(); }
+    };
+
+    // --- VERİ İŞLEME ---
+    function addData() {
+        const raw = document.getElementById('jsonInput').value;
+        if (!raw.trim()) return alert("Lütfen kod yapıştırın.");
+        try {
+            const data = JSON.parse(raw);
+            let count = 0;
+            Object.keys(data.basliklar).forEach(key => {
+                let item = { 
+                    id: Math.random().toString(36).substr(2, 9),
+                    title: data.basliklar[key],
+                    features: {}
+                };
+                data.satirlar.forEach(row => {
+                    // Özellik isimlerini standartlaştır (Boşlukları temizle)
+                    item.features[row.ozellik.trim()] = row[key] || '-';
+                });
+                portfolio.push(item);
+                count++;
+            });
+            save();
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('msg').innerText = `✓ ${count} ilan eklendi.`;
+            setTimeout(() => document.getElementById('msg').innerText = '', 3000);
+        } catch (e) {
+            alert("Hatalı JSON Formatı!");
         }
     }
 
-    // --- PARSING FONKSİYONLARI ---
-    
-    // TR Formatlı Sayı Okuma (1.250 -> 1250 | 12.500.000 -> 12500000)
-    function parseTRNumber(str) {
+    function updateList() {
+        const area = document.getElementById('listArea');
+        area.innerHTML = '';
+        portfolio.forEach((item, idx) => {
+            let price = item.features['Fiyat'] || '';
+            area.innerHTML += `
+                <div class="item-card">
+                    <div>
+                        <input type="checkbox" value="${idx}" checked>
+                        <span style="font-weight:bold; font-size:13px;">${item.title}</span>
+                        <div style="font-size:11px; color:#666;">${price}</div>
+                    </div>
+                    <button onclick="removeItem(${idx})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                </div>
+            `;
+        });
+    }
+
+    function removeItem(idx) { portfolio.splice(idx, 1); save(); }
+    function clearAll() { if(confirm("Tümü silinsin mi?")) { portfolio = []; save(); document.getElementById('reportContainer').innerHTML=''; } }
+    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolio)); updateList(); }
+
+    // --- PARSER (Sayı Okuyucu) ---
+    function parseNum(str) {
         if (!str) return 0;
-        let clean = str.toString();
-        // Sadece sayıları al
-        clean = clean.replace(/\./g, '').replace(/,/g, '.'); // Binlik noktaları sil, ondalık virgülü nokta yap
-        // Rakam olmayan her şeyi (TL, m2 vb) temizle ama noktayı (.) koru
-        let match = clean.match(/[0-9.]+/);
+        let s = str.toString();
+        // Sadece rakamları al, noktayı ve virgülü yönet
+        // TR format: 1.250.000 (Tam sayı) veya 1.250,50 (Ondalık)
+        // Strateji: Tüm noktaları sil, virgülü nokta yap.
+        s = s.replace(/\./g, '').replace(/,/g, '.');
+        let match = s.match(/[0-9.]+/); // Sayısal kısmı çek
         return match ? parseFloat(match[0]) : 0;
     }
 
-    // Bina Yaşı Okuma (Sıfır -> 0, 5-10 -> 5)
     function parseAge(str) {
-        if (!str) return 999;
+        if(!str) return 999;
         let s = str.toString().toLowerCase();
-        if (s.includes('sıfır') || s.includes('yeni') || s.includes('0')) return 0;
+        if(s.includes('sıfır') || s.includes('yeni') || s.includes('0')) return 0;
         let match = s.match(/\d+/);
         return match ? parseInt(match[0]) : 999;
     }
 
-    // --- İŞLEMLER ---
+    // --- RAPOR MOTORU ---
+    function renderReport() {
+        const selectedIds = Array.from(document.querySelectorAll('#listArea input:checked')).map(cb => cb.value);
+        if (selectedIds.length === 0) return alert("Seçim yapın.");
 
-    function jsonHavuzaEkle() {
-        try {
-            const raw = document.getElementById('jsonInput').value;
-            if(!raw.trim()) return;
-            const data = JSON.parse(raw);
-            let count = 0;
-            
-            Object.keys(data.basliklar).forEach(key => {
-                let item = { 
-                    id: 'ad_'+Date.now()+'_'+Math.random().toString(36).substr(2,4),
-                    baslik: data.basliklar[key],
-                    ozellikler: {}
-                };
-                data.satirlar.forEach(row => {
-                    item.ozellikler[row.ozellik] = row[key] || '-';
-                });
-                globalPortfolio.push(item);
-                count++;
-            });
+        const ads = selectedIds.map(i => portfolio[i]);
+        const container = document.getElementById('reportContainer');
+        container.innerHTML = '';
 
-            save();
-            document.getElementById('jsonInput').value = '';
-            msg(`+${count} ilan eklendi`);
-        } catch(e) {
-            alert("JSON Hatası: Kodu eksik kopyalamış olabilirsiniz.");
-        }
-    }
-
-    function renderList() {
-        const list = document.getElementById('portfolioList');
-        list.innerHTML = '';
-        if(globalPortfolio.length === 0) {
-            list.innerHTML = '<div style="color:#999; padding:10px; font-size:12px;">Liste boş.</div>';
-            return;
-        }
-        
-        globalPortfolio.forEach((ad, idx) => {
-            let price = ad.ozellikler['Fiyat'] || '';
-            const div = document.createElement('div');
-            div.className = 'portfolio-item';
-            div.innerHTML = `
-                <label>
-                    <input type="checkbox" value="${idx}" checked>
-                    <b>${ad.baslik}</b> <span style="font-weight:normal; color:#666;">(${price})</span>
-                </label>
-                <button class="btn btn-danger" onclick="del(${idx})">Sil</button>
-            `;
-            list.appendChild(div);
-        });
-    }
-
-    function del(idx) {
-        globalPortfolio.splice(idx, 1);
-        save();
-    }
-    
-    function havuzuTemizle() {
-        if(confirm("Tüm liste silinecek?")) {
-            globalPortfolio = [];
-            save();
-            document.getElementById('reportContainer').innerHTML = '';
-        }
-    }
-
-    function save() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(globalPortfolio));
-        renderList();
-    }
-    
-    function msg(txt) {
-        const el = document.getElementById('statusMsg');
-        el.textContent = txt;
-        setTimeout(() => el.textContent='', 3000);
-    }
-
-    // --- RAPOR MOTORU VE ANALİZ ---
-
-    function calculateBestStats(ads) {
+        // -- ANALİZ (EN İYİLERİ BUL) --
         let stats = {
             minPrice: Infinity,
-            minUnit: Infinity,
-            maxNetM2: 0, // En Büyük Net m2
+            minUnitPrice: Infinity,
+            maxNetM2: 0,
             minAge: 999
         };
 
         ads.forEach(ad => {
-            // 1. Fiyat (Düşük = İyi)
-            if(ad.ozellikler['Fiyat']) {
-                let v = parseTRNumber(ad.ozellikler['Fiyat']);
-                if(v > 0 && v < stats.minPrice) stats.minPrice = v;
-            }
-            
-            // 2. Birim Fiyat (Düşük = İyi)
-            // Anahtar isminde "Birim" geçiyorsa bak
-            let unitKey = Object.keys(ad.ozellikler).find(k => k.includes('Birim'));
-            if(unitKey) {
-                let v = parseTRNumber(ad.ozellikler[unitKey]);
-                if(v > 0 && v < stats.minUnit) stats.minUnit = v;
-            }
+            for (let [key, val] of Object.entries(ad.features)) {
+                let k = key.toLowerCase();
+                let num = parseNum(val);
 
-            // 3. Net m² (Yüksek = İyi)
-            let m2Key = Object.keys(ad.ozellikler).find(k => k.includes('m²') || k.includes('Metrekare'));
-            if(m2Key) {
-                let raw = ad.ozellikler[m2Key] || ''; 
-                // Format: "160 m² / 155 m²" -> Brüt / Net
-                let val = 0;
-                if(raw.includes('/')) {
-                    let parts = raw.split('/');
-                    // Slash'ın sağındaki (2. kısım) Net'tir.
-                    val = parseTRNumber(parts[1]); 
-                    // Eğer sağ taraf boşsa veya sayı yoksa sol tarafa bak (backup)
-                    if(val === 0) val = parseTRNumber(parts[0]);
-                } else {
-                    val = parseTRNumber(raw);
+                // 1. Fiyat (Sadece 'Fiyat' yazan, Birim olmayan)
+                if (key === 'Fiyat' && num > 0) {
+                    if (num < stats.minPrice) stats.minPrice = num;
                 }
-                
-                if(val > stats.maxNetM2) stats.maxNetM2 = val;
-            }
-
-            // 4. Yaş (Genç = İyi)
-            let ageKey = Object.keys(ad.ozellikler).find(k => k.includes('Yaş') || k.includes('Bina'));
-            if(ageKey) {
-                let v = parseAge(ad.ozellikler[ageKey]);
-                if(v < stats.minAge) stats.minAge = v;
+                // 2. Birim Fiyat (İçinde 'birim' geçen)
+                else if (k.includes('birim') && num > 0) {
+                    if (num < stats.minUnitPrice) stats.minUnitPrice = num;
+                }
+                // 3. m² (Net Bulma)
+                else if (k.includes('m²') || k.includes('m2') || k.includes('metrekare')) {
+                    // "160 / 150" formatı varsa sağdakini (Net) al
+                    if (val.includes('/')) {
+                        let parts = val.split('/');
+                        let net = parseNum(parts[1]) || parseNum(parts[0]); // Sağ taraf yoksa solu al
+                        if (net > stats.maxNetM2) stats.maxNetM2 = net;
+                    } else {
+                        if (num > stats.maxNetM2) stats.maxNetM2 = num;
+                    }
+                }
+                // 4. Yaş
+                else if (k.includes('yaş') || k.includes('bina')) {
+                    let age = parseAge(val);
+                    if (age < stats.minAge) stats.minAge = age;
+                }
             }
         });
-        return stats;
-    }
 
-    function raporuOlustur() {
-        const selectedIdx = Array.from(document.querySelectorAll('#portfolioList input:checked')).map(cb => cb.value);
-        if(selectedIdx.length === 0) { alert("Seçim yapınız."); return; }
+        // Debug Bilgisi (Gizli kontrol)
+        console.log("Analiz Sonucu:", stats);
 
-        const ads = selectedIdx.map(i => globalPortfolio[i]);
-        const bests = calculateBestStats(ads);
-        const container = document.getElementById('reportContainer');
-        container.innerHTML = '';
+        // -- SAYFALAMA VE TABLO ÇİZİMİ --
+        const perPage = 6;
+        const totalPages = Math.ceil(ads.length / perPage);
 
-        const PER_PAGE = 6;
-        const totalPages = Math.ceil(ads.length / PER_PAGE);
-
-        for(let p=0; p<totalPages; p++) {
+        for (let p = 0; p < totalPages; p++) {
+            const pageAds = ads.slice(p * perPage, (p + 1) * perPage);
             const pageDiv = document.createElement('div');
             pageDiv.className = 'report-page';
-            
-            // Başlık
-            pageDiv.innerHTML = `
-                <div style="border-bottom:3px solid var(--primary); margin-bottom:20px; padding-bottom:10px; display:flex; justify-content:space-between; align-items:flex-end;">
-                    <div>
-                        <h1 style="margin:0; color:var(--primary); font-size:24px;">DEĞERLEME RAPORU</h1>
-                        <div style="font-size:12px; color:#777;">KARŞILAŞTIRMALI ANALİZ | Sayfa ${p+1}/${totalPages}</div>
-                    </div>
-                    <div style="font-size:12px;">${new Date().toLocaleDateString('tr-TR')}</div>
+
+            let html = `
+                <div style="display:flex; justify-content:space-between; border-bottom:3px solid var(--primary); padding-bottom:10px; margin-bottom:20px;">
+                    <h1 style="margin:0; color:var(--primary);">DEĞERLEME RAPORU</h1>
+                    <div style="text-align:right; font-size:12px;">${new Date().toLocaleDateString('tr-TR')} <br> Sayfa ${p+1}/${totalPages}</div>
                 </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-feature">ÖZELLİKLER</th>
+                            ${pageAds.map(ad => `<th>${ad.title} <div class="del-col" onclick="this.parentElement.cellIndex > 0 && removeCol(this)">✕</div></th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
             `;
 
-            // Tablo
-            const wrapper = document.createElement('div');
-            wrapper.className = 'table-wrapper';
-            const table = document.createElement('table');
-            
-            const pAds = ads.slice(p*PER_PAGE, (p+1)*PER_PAGE);
-
-            // THEAD
-            const thead = document.createElement('thead');
-            const trH = document.createElement('tr');
-            trH.innerHTML = '<th class="col-feature">ÖZELLİKLER</th>';
-            pAds.forEach(ad => {
-                const th = document.createElement('th');
-                th.innerHTML = `${ad.baslik} <div class="delete-col-btn" onclick="hideCol(this)">✕</div>`;
-                trH.appendChild(th);
-            });
-            thead.appendChild(trH);
-            table.appendChild(thead);
-
-            // TBODY
-            const tbody = document.createElement('tbody');
-            if(pAds.length > 0) {
-                const features = Object.keys(pAds[0].ozellikler);
-                features.forEach(feat => {
-                    const tr = document.createElement('tr');
+            // Satırları Oluştur
+            if (pageAds.length > 0) {
+                const keys = Object.keys(pageAds[0].features);
+                keys.forEach(featName => {
+                    html += `<tr><td class="col-feature">${featName}</td>`;
                     
-                    // Özellik Adı
-                    const tdF = document.createElement('td');
-                    tdF.className = 'col-feature';
-                    tdF.textContent = feat;
-                    tr.appendChild(tdF);
+                    pageAds.forEach(ad => {
+                        let val = ad.features[featName];
+                        let k = featName.toLowerCase();
+                        let num = parseNum(val);
+                        let cellClass = '';
+                        let badge = '';
 
-                    // Değerler
-                    pAds.forEach(ad => {
-                        const td = document.createElement('td');
-                        let raw = ad.ozellikler[feat];
+                        // -- HÜCRE RENKLENDİRME KARARI --
                         
-                        // İçerik
-                        if(feat === 'İlan No' && raw.includes('#')) {
-                            let id = raw.replace('#','').trim();
-                            td.innerHTML = `<div>${raw}</div><a href="https://sahibinden.com/ilan/${id}/detay" target="_blank" class="ad-link-btn">İlana Git 🔗</a>`;
-                        } else {
-                            td.textContent = raw;
+                        // Fiyat (En Düşük)
+                        if (featName === 'Fiyat' && num === stats.minPrice) {
+                            cellClass = 'highlight-green'; badge = '<span class="icon-badge">📉 EN UYGUN</span>';
                         }
-
-                        // --- VURGULAMA MANTIĞI ---
-                        let highlightClass = '';
-                        
-                        // 1. Fiyat
-                        if(feat === 'Fiyat' && parseTRNumber(raw) === bests.minPrice) {
-                            highlightClass = 'advantage-cell type-price';
+                        // Birim Fiyat (En Düşük)
+                        else if (k.includes('birim') && num === stats.minUnitPrice) {
+                            cellClass = 'highlight-green'; badge = '<span class="icon-badge">💎 FIRSAT</span>';
                         }
-                        // 2. Birim Fiyat
-                        else if(feat.includes('Birim') && parseTRNumber(raw) === bests.minUnit) {
-                            highlightClass = 'advantage-cell type-price';
-                        }
-                        // 3. Net m²
-                        else if((feat.includes('m²') || feat.includes('Metrekare'))) {
-                            let val = 0;
-                            if(raw.includes('/')) {
-                                let parts = raw.split('/');
-                                val = parseTRNumber(parts[1]) || parseTRNumber(parts[0]);
-                            } else {
-                                val = parseTRNumber(raw);
+                        // m² (En Büyük)
+                        else if (k.includes('m²') || k.includes('m2') || k.includes('metrekare')) {
+                            // Net hesabı
+                            let netVal = num;
+                            if(val.includes('/')) {
+                                let parts = val.split('/');
+                                netVal = parseNum(parts[1]) || parseNum(parts[0]);
                             }
-                            
-                            if(val > 0 && val === bests.maxNetM2) {
-                                highlightClass = 'advantage-cell type-size';
+                            if (netVal === stats.maxNetM2 && netVal > 0) {
+                                cellClass = 'highlight-blue'; badge = '<span class="icon-badge">📐 EN GENİŞ</span>';
                             }
                         }
-                        // 4. Bina Yaşı
-                        else if((feat.includes('Yaş') || feat.includes('Bina')) && parseAge(raw) === bests.minAge) {
-                            highlightClass = 'advantage-cell type-age';
+                        // Yaş (En Küçük)
+                        else if ((k.includes('yaş') || k.includes('bina')) && parseAge(val) === stats.minAge) {
+                            cellClass = 'highlight-green'; badge = '<span class="icon-badge">🆕 EN YENİ</span>';
                         }
 
-                        if(highlightClass) td.className = highlightClass;
-                        
-                        tr.appendChild(td);
+                        // İçerik Formatı (Link mi Düz mü?)
+                        let content = val;
+                        if (k.includes('ilan no') && val.includes('#')) {
+                            let id = val.replace('#','').trim();
+                            content = `<div>${val}</div><a href="https://sahibinden.com/ilan/${id}/detay" target="_blank" class="link-btn">İlana Git 🔗</a>`;
+                        }
+
+                        html += `<td class="${cellClass}">${badge}${content}</td>`;
                     });
-                    tbody.appendChild(tr);
+                    html += `</tr>`;
                 });
             }
-            table.appendChild(tbody);
-            wrapper.appendChild(table);
-            pageDiv.appendChild(wrapper);
-            container.appendChild(pageDiv);
 
-            if(p < totalPages-1) {
-                const br = document.createElement('div');
-                br.className = 'page-break';
-                br.innerText = '--- Sayfa Sonu ---';
-                container.appendChild(br);
-            }
+            html += `</tbody></table>`;
+            
+            // Debug Footer
+            html += `<div class="debug-info" style="display:block; margin-top:30px; text-align:center; color:#999; background:none;">
+                * Sistem Analizi: En Uygun Fiyat: ${stats.minPrice.toLocaleString()} TL | En Geniş Net: ${stats.maxNetM2} m²
+            </div>`;
+
+            pageDiv.innerHTML = html;
+            container.appendChild(pageDiv);
         }
     }
 
-    function hideCol(btn) {
-        const idx = btn.parentElement.cellIndex;
-        const tbl = btn.closest('table');
-        Array.from(tbl.rows).forEach(r => {
-            if(r.cells[idx]) r.deleteCell(idx);
-        });
-        if(tbl.rows[0].cells.length < 2) tbl.closest('.report-page').style.display='none';
+    function removeCol(el) {
+        const idx = el.parentElement.cellIndex;
+        const table = el.closest('table');
+        Array.from(table.rows).forEach(row => row.deleteCell(idx));
     }
 </script>
 
