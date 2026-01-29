@@ -3,151 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emlak Analiz v6 (Kesin Çözüm)</title>
+    <title>Emlak Portföy Yöneticisi v7 (Final)</title>
     <style>
         :root {
-            --primary: #2c3e50;
+            --primary: #2c3e50; /* Lacivert */
             --secondary: #34495e;
-            --accent: #27ae60; /* Koyu Yeşil */
-            --highlight-bg: #dff9fb; /* Çok açık mavi (Okunabilirlik için) */
-            --danger: #c0392b;
-            --light: #f1f2f6;
+            --accent: #27ae60; /* Yeşil (Vurgu) */
+            --danger: #c0392b; /* Kırmızı (Silme) */
+            --btn-link: #3498db; /* Mavi (Link Butonu) */
+            --light: #ecf0f1;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: #dfe6e9; padding: 20px; color: #2d3436; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
 
-        /* PANEL TASARIMI */
+        /* --- KONTROL PANELİ --- */
         .control-panel {
-            background: white; padding: 25px; border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 30px;
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px;
             max-width: 1200px; margin-left: auto; margin-right: auto;
         }
-        
+
         .input-group textarea {
-            width: 100%; height: 100px; padding: 10px;
-            border: 2px solid #eee; border-radius: 5px;
-            font-family: monospace; font-size: 12px;
+            width: 100%; height: 90px; padding: 10px;
+            border: 1px solid #ccc; border-radius: 5px;
+            font-family: monospace; font-size: 11px;
+            background: #fafafa; box-sizing: border-box;
         }
 
+        /* Butonlar */
         .btn {
-            border: none; padding: 12px 25px; border-radius: 6px;
-            cursor: pointer; font-weight: bold; transition: 0.2s;
-            color: white; margin-right: 5px;
+            border: none; padding: 10px 20px; border-radius: 6px;
+            cursor: pointer; font-weight: 600; font-size: 13px;
+            transition: 0.2s; color: white; white-space: nowrap;
         }
         .btn-add { background: var(--primary); }
         .btn-add:hover { background: var(--secondary); }
         .btn-report { background: var(--accent); }
         .btn-clear { background: var(--danger); }
-        .btn-print { background: #3498db; }
+        .btn-print { background: #2980b9; }
 
-        /* LİSTE */
-        .portfolio-grid {
+        /* Liste Alanı */
+        .portfolio-list {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 15px; margin-top: 20px;
-            max-height: 300px; overflow-y: auto;
+            gap: 12px; margin-top: 15px; max-height: 300px; overflow-y: auto;
         }
         .item-card {
-            background: #fff; padding: 10px; border-radius: 5px;
-            border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;
+            background: white; padding: 10px; border: 1px solid #ddd;
+            border-radius: 5px; display: flex; justify-content: space-between; align-items: center;
         }
 
-        /* RAPOR ALANI */
+        /* --- RAPOR SAYFASI --- */
         .report-page {
-            background: white; width: 100%; max-width: 297mm;
-            min-height: 210mm; margin: 0 auto 30px auto;
-            padding: 15mm; box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            background: white; width: 100%; max-width: 297mm; /* A4 Yatay */
+            min-height: 190mm; margin: 0 auto 30px auto;
+            padding: 15mm; box-shadow: 0 0 20px rgba(0,0,0,0.05);
             position: relative; box-sizing: border-box;
         }
 
+        /* Tablo */
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
-        
         th, td {
-            border: 1px solid #b2bec3; padding: 8px;
+            border: 1px solid #bdc3c7; padding: 10px;
             text-align: center; vertical-align: middle; word-wrap: break-word;
         }
 
-        /* Sol Sütun (Özellikler) */
+        /* Sol Sütun */
         .col-feature {
             background: var(--primary); color: white; font-weight: bold;
-            width: 150px; text-align: left; padding-left: 15px;
+            width: 140px; text-align: left; padding-left: 15px;
+            position: sticky; left: 0; z-index: 5;
         }
 
-        /* Başlıklar */
         thead th { background: var(--secondary); color: white; height: 50px; position: relative; }
 
-        /* SİLME BUTONU (X) */
+        /* Sütun Silme (X) */
         .del-col {
             position: absolute; top: -10px; right: -10px;
             background: var(--danger); color: white;
-            width: 20px; height: 20px; border-radius: 50%;
+            width: 22px; height: 22px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 12px; border: 2px solid white;
+            cursor: pointer; border: 2px solid white; z-index: 10;
+            font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* --- KRİTİK BÖLÜM: RENKLENDİRME --- */
-        
-        /* 1. DÜŞÜK FİYAT & BİRİM FİYAT & YAŞ (YEŞİL) */
-        .highlight-green {
-            background-color: #d1f2eb !important; /* Açık Nane Yeşili */
-            color: #009432 !important; /* Koyu Yeşil Yazı */
-            font-weight: 900 !important;
-            border: 2px solid #009432 !important;
+        /* --- ÖNEMLİ: BUTON TASARIMI (v5'ten Geri Geldi) --- */
+        .ad-link-btn {
+            display: inline-block;
+            background-color: var(--btn-link);
+            color: white !important;
+            text-decoration: none;
+            padding: 8px 15px; /* Geniş Dolgu */
+            border-radius: 20px;
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            width: 80%; /* Hücre Genişliği */
+            max-width: 140px;
+        }
+        .ad-link-btn:hover {
+            background-color: #1f6391;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        /* 2. BÜYÜK M2 (FARKLI YEŞİL) */
-        .highlight-blue {
-            background-color: #d1f2eb !important; 
-            color: #009432 !important;
-            font-weight: 900 !important;
-            border: 2px solid #009432 !important;
+        /* --- VURGULAMALAR (v6 Mantığı) --- */
+        /* Ortak Avantaj Stili */
+        .highlight-win {
+            background-color: #e8f8f5 !important; /* Yeşil Zemin */
+            color: #27ae60 !important;
+            font-weight: 800 !important;
+            border: 2px solid #27ae60 !important;
+            position: relative;
         }
-
-        .icon-badge { display: block; font-size: 14px; margin-bottom: 2px; }
-
-        /* Link Butonu */
-        .link-btn {
-            display: inline-block; background: #3498db; color: white !important;
-            text-decoration: none; padding: 4px 10px; border-radius: 12px;
-            font-size: 10px; margin-top: 5px;
-        }
-
-        /* DEBUG BİLGİSİ */
-        .debug-info {
-            margin-top: 20px; padding: 10px; background: #ffeaa7; 
-            font-size: 11px; color: #d35400; border-radius: 4px; display: none;
-        }
+        .icon-badge { display: block; font-size: 9px; margin-bottom: 2px; text-transform: uppercase; color: #27ae60; }
 
         @media print {
             body { background: white; padding: 0; }
             .control-panel, .del-col { display: none !important; }
-            .report-page { box-shadow: none; margin: 0; width: 100%; }
-            .highlight-green, .highlight-blue { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .report-page { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 5mm; }
+            .ad-link-btn {
+                background: transparent; color: var(--primary) !important;
+                border: 1px solid var(--primary); box-shadow: none; padding: 4px 8px;
+            }
+            .highlight-win { background-color: #f0fff4 !important; border-width: 1px; }
             @page { size: A4 landscape; margin: 5mm; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="control-panel">
-    <h3>🚀 Gayrimenkul Analiz v6</h3>
     <div style="display: flex; gap: 20px; flex-wrap: wrap;">
         <div style="flex: 1; min-width: 300px;">
-            <p style="margin-top:0; font-size:12px; color:#666;">JSON kodunu yapıştırın:</p>
+            <h3 style="margin-top:0; color:var(--primary);">1. Veri Girişi</h3>
             <div class="input-group">
-                <textarea id="jsonInput" placeholder='{"basliklar": {...}, "satirlar": [...]}'></textarea>
+                <textarea id="jsonInput" placeholder='JSON kodunu buraya yapıştırın...'></textarea>
             </div>
             <div style="margin-top: 10px;">
-                <button class="btn btn-add" onclick="addData()">Listeye Ekle (+)</button>
-                <span id="msg" style="color: green; font-size: 12px; font-weight: bold;"></span>
+                <button class="btn btn-add" onclick="addData()">📥 Listeye Ekle</button>
+                <span id="msg" style="color: green; font-size: 12px; margin-left: 10px; font-weight: bold;"></span>
             </div>
         </div>
         <div style="flex: 1; min-width: 300px;">
-            <div style="display: flex; justify-content: space-between;">
-                <p style="margin-top:0; font-size:12px; color:#666;">Portföy Listesi:</p>
-                <button class="btn btn-clear" style="padding: 5px 10px; font-size:11px;" onclick="clearAll()">Temizle</button>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin-top:0; color:var(--primary);">2. Portföyüm</h3>
+                <button class="btn btn-clear" onclick="clearAll()">🗑️ Tümü Sil</button>
             </div>
-            <div class="portfolio-grid" id="listArea"></div>
-            <div style="margin-top: 20px; text-align: right;">
+            <div class="portfolio-list" id="listArea">
+                <div style="color:#999; font-size:12px; padding:5px;">Liste boş.</div>
+            </div>
+            <div style="margin-top: 20px; text-align: right; display:flex; justify-content:flex-end; gap:10px;">
                 <button class="btn btn-report" onclick="renderReport()">📊 Raporla</button>
                 <button class="btn btn-print" onclick="window.print()">🖨️ PDF İndir</button>
             </div>
@@ -155,19 +169,23 @@
     </div>
 </div>
 
-<div id="reportContainer"></div>
+<div id="reportContainer">
+    <div style="text-align:center; padding:50px; color:#999; border: 2px dashed #ddd; margin: 20px auto; max-width: 800px;">
+        <h3>Rapor Alanı</h3>
+        <p>Yukarıdan ilanları seçip "Raporla" butonuna basınız.</p>
+    </div>
+</div>
 
 <script>
-    const STORAGE_KEY = 'emlak_v6_final';
+    const STORAGE_KEY = 'emlak_v7_final';
     let portfolio = [];
 
-    // --- YÜKLEME ---
     window.onload = () => {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) { portfolio = JSON.parse(saved); updateList(); }
     };
 
-    // --- VERİ İŞLEME ---
+    // --- VERİ EKLEME ---
     function addData() {
         const raw = document.getElementById('jsonInput').value;
         if (!raw.trim()) return alert("Lütfen kod yapıştırın.");
@@ -181,7 +199,6 @@
                     features: {}
                 };
                 data.satirlar.forEach(row => {
-                    // Özellik isimlerini standartlaştır (Boşlukları temizle)
                     item.features[row.ozellik.trim()] = row[key] || '-';
                 });
                 portfolio.push(item);
@@ -199,16 +216,22 @@
     function updateList() {
         const area = document.getElementById('listArea');
         area.innerHTML = '';
+        if(portfolio.length === 0) {
+            area.innerHTML = '<div style="color:#999; padding:5px; font-size:12px;">Liste boş.</div>';
+            return;
+        }
         portfolio.forEach((item, idx) => {
             let price = item.features['Fiyat'] || '';
             area.innerHTML += `
                 <div class="item-card">
-                    <div>
-                        <input type="checkbox" value="${idx}" checked>
-                        <span style="font-weight:bold; font-size:13px;">${item.title}</span>
-                        <div style="font-size:11px; color:#666;">${price}</div>
-                    </div>
-                    <button onclick="removeItem(${idx})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                    <label style="cursor:pointer; display:flex; align-items:center; width:100%;">
+                        <input type="checkbox" value="${idx}" checked style="margin-right:10px;">
+                        <div>
+                            <div style="font-weight:bold; font-size:13px;">${item.title}</div>
+                            <div style="font-size:11px; color:#666;">${price}</div>
+                        </div>
+                    </label>
+                    <button onclick="removeItem(${idx})" style="background:none; border:none; color:red; cursor:pointer; font-size:14px;">✕</button>
                 </div>
             `;
         });
@@ -218,15 +241,11 @@
     function clearAll() { if(confirm("Tümü silinsin mi?")) { portfolio = []; save(); document.getElementById('reportContainer').innerHTML=''; } }
     function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolio)); updateList(); }
 
-    // --- PARSER (Sayı Okuyucu) ---
+    // --- ANALİZ YARDIMCILARI ---
     function parseNum(str) {
         if (!str) return 0;
-        let s = str.toString();
-        // Sadece rakamları al, noktayı ve virgülü yönet
-        // TR format: 1.250.000 (Tam sayı) veya 1.250,50 (Ondalık)
-        // Strateji: Tüm noktaları sil, virgülü nokta yap.
-        s = s.replace(/\./g, '').replace(/,/g, '.');
-        let match = s.match(/[0-9.]+/); // Sayısal kısmı çek
+        let s = str.toString().replace(/\./g, '').replace(/,/g, '.');
+        let match = s.match(/[0-9.]+/);
         return match ? parseFloat(match[0]) : 0;
     }
 
@@ -238,59 +257,39 @@
         return match ? parseInt(match[0]) : 999;
     }
 
-    // --- RAPOR MOTORU ---
+    // --- RAPOR OLUŞTURMA ---
     function renderReport() {
         const selectedIds = Array.from(document.querySelectorAll('#listArea input:checked')).map(cb => cb.value);
-        if (selectedIds.length === 0) return alert("Seçim yapın.");
+        if (selectedIds.length === 0) return alert("Listeden seçim yapın.");
 
         const ads = selectedIds.map(i => portfolio[i]);
         const container = document.getElementById('reportContainer');
         container.innerHTML = '';
 
-        // -- ANALİZ (EN İYİLERİ BUL) --
-        let stats = {
-            minPrice: Infinity,
-            minUnitPrice: Infinity,
-            maxNetM2: 0,
-            minAge: 999
-        };
+        // İSTATİSTİK HESAPLA
+        let stats = { minPrice: Infinity, minUnitPrice: Infinity, maxNetM2: 0, minAge: 999 };
 
         ads.forEach(ad => {
             for (let [key, val] of Object.entries(ad.features)) {
                 let k = key.toLowerCase();
                 let num = parseNum(val);
 
-                // 1. Fiyat (Sadece 'Fiyat' yazan, Birim olmayan)
-                if (key === 'Fiyat' && num > 0) {
-                    if (num < stats.minPrice) stats.minPrice = num;
-                }
-                // 2. Birim Fiyat (İçinde 'birim' geçen)
-                else if (k.includes('birim') && num > 0) {
-                    if (num < stats.minUnitPrice) stats.minUnitPrice = num;
-                }
-                // 3. m² (Net Bulma)
+                if (key === 'Fiyat' && num > 0 && num < stats.minPrice) stats.minPrice = num;
+                else if (k.includes('birim') && num > 0 && num < stats.minUnitPrice) stats.minUnitPrice = num;
                 else if (k.includes('m²') || k.includes('m2') || k.includes('metrekare')) {
-                    // "160 / 150" formatı varsa sağdakini (Net) al
-                    if (val.includes('/')) {
+                    let net = num;
+                    if(val.includes('/')) {
                         let parts = val.split('/');
-                        let net = parseNum(parts[1]) || parseNum(parts[0]); // Sağ taraf yoksa solu al
-                        if (net > stats.maxNetM2) stats.maxNetM2 = net;
-                    } else {
-                        if (num > stats.maxNetM2) stats.maxNetM2 = num;
+                        net = parseNum(parts[1]) || parseNum(parts[0]);
                     }
+                    if(net > stats.maxNetM2) stats.maxNetM2 = net;
                 }
-                // 4. Yaş
-                else if (k.includes('yaş') || k.includes('bina')) {
-                    let age = parseAge(val);
-                    if (age < stats.minAge) stats.minAge = age;
+                else if ((k.includes('yaş') || k.includes('bina')) && parseAge(val) < stats.minAge) {
+                    stats.minAge = parseAge(val);
                 }
             }
         });
 
-        // Debug Bilgisi (Gizli kontrol)
-        console.log("Analiz Sonucu:", stats);
-
-        // -- SAYFALAMA VE TABLO ÇİZİMİ --
         const perPage = 6;
         const totalPages = Math.ceil(ads.length / perPage);
 
@@ -301,20 +300,22 @@
 
             let html = `
                 <div style="display:flex; justify-content:space-between; border-bottom:3px solid var(--primary); padding-bottom:10px; margin-bottom:20px;">
-                    <h1 style="margin:0; color:var(--primary);">DEĞERLEME RAPORU</h1>
-                    <div style="text-align:right; font-size:12px;">${new Date().toLocaleDateString('tr-TR')} <br> Sayfa ${p+1}/${totalPages}</div>
+                    <div>
+                        <h1 style="margin:0; color:var(--primary); font-size:24px;">GAYRİMENKUL DEĞERLEME RAPORU</h1>
+                        <div style="color:#7f8c8d; font-size:12px;">PİYASA ANALİZİ | Sayfa ${p+1}/${totalPages}</div>
+                    </div>
+                    <div style="text-align:right; font-size:12px;">Tarih: ${new Date().toLocaleDateString('tr-TR')}</div>
                 </div>
                 <table>
                     <thead>
                         <tr>
                             <th class="col-feature">ÖZELLİKLER</th>
-                            ${pageAds.map(ad => `<th>${ad.title} <div class="del-col" onclick="this.parentElement.cellIndex > 0 && removeCol(this)">✕</div></th>`).join('')}
+                            ${pageAds.map(ad => `<th>${ad.title} <div class="del-col" onclick="removeCol(this)">✕</div></th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
             `;
 
-            // Satırları Oluştur
             if (pageAds.length > 0) {
                 const keys = Object.keys(pageAds[0].features);
                 keys.forEach(featName => {
@@ -327,38 +328,41 @@
                         let cellClass = '';
                         let badge = '';
 
-                        // -- HÜCRE RENKLENDİRME KARARI --
-                        
-                        // Fiyat (En Düşük)
+                        // RENKLENDİRME
                         if (featName === 'Fiyat' && num === stats.minPrice) {
-                            cellClass = 'highlight-green'; badge = '<span class="icon-badge">📉 EN UYGUN</span>';
+                            cellClass = 'highlight-win'; badge = '<span class="icon-badge">📉 EN UYGUN</span>';
                         }
-                        // Birim Fiyat (En Düşük)
                         else if (k.includes('birim') && num === stats.minUnitPrice) {
-                            cellClass = 'highlight-green'; badge = '<span class="icon-badge">💎 FIRSAT</span>';
+                            cellClass = 'highlight-win'; badge = '<span class="icon-badge">💎 FIRSAT</span>';
                         }
-                        // m² (En Büyük)
-                        else if (k.includes('m²') || k.includes('m2') || k.includes('metrekare')) {
-                            // Net hesabı
-                            let netVal = num;
+                        else if ((k.includes('m²') || k.includes('metrekare'))) {
+                            let net = num;
                             if(val.includes('/')) {
                                 let parts = val.split('/');
-                                netVal = parseNum(parts[1]) || parseNum(parts[0]);
+                                net = parseNum(parts[1]) || parseNum(parts[0]);
                             }
-                            if (netVal === stats.maxNetM2 && netVal > 0) {
-                                cellClass = 'highlight-blue'; badge = '<span class="icon-badge">📐 EN GENİŞ</span>';
+                            if(net === stats.maxNetM2 && net > 0) {
+                                cellClass = 'highlight-win'; badge = '<span class="icon-badge">📐 EN GENİŞ</span>';
                             }
                         }
-                        // Yaş (En Küçük)
                         else if ((k.includes('yaş') || k.includes('bina')) && parseAge(val) === stats.minAge) {
-                            cellClass = 'highlight-green'; badge = '<span class="icon-badge">🆕 EN YENİ</span>';
+                            cellClass = 'highlight-win'; badge = '<span class="icon-badge">🆕 EN YENİ</span>';
                         }
 
-                        // İçerik Formatı (Link mi Düz mü?)
+                        // LİNK BUTONU (ÖNEMLİ DÜZELTME)
                         let content = val;
-                        if (k.includes('ilan no') && val.includes('#')) {
-                            let id = val.replace('#','').trim();
-                            content = `<div>${val}</div><a href="https://sahibinden.com/ilan/${id}/detay" target="_blank" class="link-btn">İlana Git 🔗</a>`;
+                        // İlan No satırını yakala (Key içinde 'ilan no' geçiyorsa)
+                        if (k.includes('ilan no')) {
+                            // Sadece rakamları alarak ID oluştur
+                            let id = val.replace(/[^0-9]/g, ''); 
+                            if(id.length > 5) { // Geçerli bir ID ise butonu bas
+                                content = `
+                                    <div style="font-weight:bold; color:#555;">${val}</div>
+                                    <a href="https://sahibinden.com/ilan/${id}/detay" target="_blank" class="ad-link-btn">
+                                        İlana Git 🔗
+                                    </a>
+                                `;
+                            }
                         }
 
                         html += `<td class="${cellClass}">${badge}${content}</td>`;
@@ -368,12 +372,6 @@
             }
 
             html += `</tbody></table>`;
-            
-            // Debug Footer
-            html += `<div class="debug-info" style="display:block; margin-top:30px; text-align:center; color:#999; background:none;">
-                * Sistem Analizi: En Uygun Fiyat: ${stats.minPrice.toLocaleString()} TL | En Geniş Net: ${stats.maxNetM2} m²
-            </div>`;
-
             pageDiv.innerHTML = html;
             container.appendChild(pageDiv);
         }
