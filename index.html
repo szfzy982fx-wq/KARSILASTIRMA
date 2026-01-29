@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emlak Portföy Yöneticisi v4</title>
+    <title>Emlak Portföy Yöneticisi v5 (Net m² Analizli)</title>
     <style>
         :root {
-            --primary: #2c3e50; /* Lacivert - Ana Renk */
-            --secondary: #34495e; /* Koyu Gri */
-            --accent: #27ae60; /* Yeşil - Fiyat Avantajı */
-            --feature-highlight: #2980b9; /* Mavi - Özellik Avantajı (Opsiyonel) */
-            --danger: #c0392b; /* Kırmızı - Silme */
+            --primary: #2c3e50; /* Lacivert */
+            --secondary: #34495e;
+            --accent: #27ae60; /* Yeşil */
+            --danger: #c0392b; /* Kırmızı */
             --light: #ecf0f1;
             --btn-link: #3498db;
         }
@@ -180,8 +179,8 @@
         /* --- VURGULAMALAR --- */
         /* Ortak Avantaj Stili (Yeşil) */
         .advantage-cell {
-            background-color: #e8f8f5 !important; /* Açık Yeşil Zemin */
-            color: #27ae60 !important; /* Koyu Yeşil Yazı */
+            background-color: #e8f8f5 !important;
+            color: #27ae60 !important;
             font-weight: 800;
             border: 2px solid #27ae60;
             position: relative;
@@ -191,13 +190,12 @@
         .advantage-cell::after {
             position: absolute;
             top: 2px; right: 2px;
-            font-size: 9px;
+            font-size: 10px;
         }
-        /* Fiyat Avantajı İkonu */
+        
+        /* İkon Tipleri */
         .type-price::after { content: '📉'; } /* Düşük Fiyat */
-        /* M2 Avantajı İkonu */
         .type-size::after { content: '📐'; } /* Geniş Ev */
-        /* Yaş Avantajı İkonu */
         .type-age::after { content: '🆕'; } /* Yeni Bina */
 
         .page-break {
@@ -268,7 +266,7 @@
 </div>
 
 <script>
-    const STORAGE_KEY = 'emlak_v4_m2';
+    const STORAGE_KEY = 'emlak_v5_net_m2';
     let globalPortfolio = [];
 
     window.onload = function() {
@@ -281,24 +279,22 @@
 
     // --- PARSING FONKSİYONLARI ---
     
-    // TR Formatlı Sayı Okuma (1.250 -> 1250 | 1,5 -> 1.5)
+    // TR Formatlı Sayı Okuma (1.250 -> 1250 | 12.500.000 -> 12500000)
     function parseTRNumber(str) {
         if (!str) return 0;
         let clean = str.toString();
-        // Binlik ayracı olan noktaları temizle
-        clean = clean.replace(/\./g, '');
-        // Ondalık ayracı olan virgülü noktaya çevir
-        clean = clean.replace(',', '.');
-        // Rakam ve nokta harici her şeyi sil
-        clean = clean.replace(/[^0-9.]/g, '');
-        return parseFloat(clean) || 0;
+        // Sadece sayıları al
+        clean = clean.replace(/\./g, '').replace(/,/g, '.'); // Binlik noktaları sil, ondalık virgülü nokta yap
+        // Rakam olmayan her şeyi (TL, m2 vb) temizle ama noktayı (.) koru
+        let match = clean.match(/[0-9.]+/);
+        return match ? parseFloat(match[0]) : 0;
     }
 
     // Bina Yaşı Okuma (Sıfır -> 0, 5-10 -> 5)
     function parseAge(str) {
         if (!str) return 999;
         let s = str.toString().toLowerCase();
-        if (s.includes('sıfır') || s.includes('yeni')) return 0;
+        if (s.includes('sıfır') || s.includes('yeni') || s.includes('0')) return 0;
         let match = s.match(/\d+/);
         return match ? parseInt(match[0]) : 999;
     }
@@ -380,7 +376,7 @@
         setTimeout(() => el.textContent='', 3000);
     }
 
-    // --- RAPOR MOTORU ---
+    // --- RAPOR MOTORU VE ANALİZ ---
 
     function calculateBestStats(ads) {
         let stats = {
@@ -391,29 +387,32 @@
         };
 
         ads.forEach(ad => {
-            // 1. Fiyat
+            // 1. Fiyat (Düşük = İyi)
             if(ad.ozellikler['Fiyat']) {
                 let v = parseTRNumber(ad.ozellikler['Fiyat']);
                 if(v > 0 && v < stats.minPrice) stats.minPrice = v;
             }
             
-            // 2. Birim Fiyat
+            // 2. Birim Fiyat (Düşük = İyi)
+            // Anahtar isminde "Birim" geçiyorsa bak
             let unitKey = Object.keys(ad.ozellikler).find(k => k.includes('Birim'));
             if(unitKey) {
                 let v = parseTRNumber(ad.ozellikler[unitKey]);
                 if(v > 0 && v < stats.minUnit) stats.minUnit = v;
             }
 
-            // 3. Net m² (Kritik Bölüm)
+            // 3. Net m² (Yüksek = İyi)
             let m2Key = Object.keys(ad.ozellikler).find(k => k.includes('m²') || k.includes('Metrekare'));
             if(m2Key) {
-                let raw = ad.ozellikler[m2Key] || ''; // Örn: "185 m² / 170 m²"
+                let raw = ad.ozellikler[m2Key] || ''; 
+                // Format: "160 m² / 155 m²" -> Brüt / Net
                 let val = 0;
                 if(raw.includes('/')) {
-                    // Slash varsa, ikinci kısım (sağ taraf) genellikle Net'tir.
                     let parts = raw.split('/');
-                    // Eğer ikinci kısım sayı içeriyorsa onu al, yoksa ilk kısmı al
-                    val = parseTRNumber(parts[1]) || parseTRNumber(parts[0]);
+                    // Slash'ın sağındaki (2. kısım) Net'tir.
+                    val = parseTRNumber(parts[1]); 
+                    // Eğer sağ taraf boşsa veya sayı yoksa sol tarafa bak (backup)
+                    if(val === 0) val = parseTRNumber(parts[0]);
                 } else {
                     val = parseTRNumber(raw);
                 }
@@ -421,7 +420,7 @@
                 if(val > stats.maxNetM2) stats.maxNetM2 = val;
             }
 
-            // 4. Yaş
+            // 4. Yaş (Genç = İyi)
             let ageKey = Object.keys(ad.ozellikler).find(k => k.includes('Yaş') || k.includes('Bina'));
             if(ageKey) {
                 let v = parseAge(ad.ozellikler[ageKey]);
@@ -495,7 +494,7 @@
                         const td = document.createElement('td');
                         let raw = ad.ozellikler[feat];
                         
-                        // İçerik (Link mi Düz mü?)
+                        // İçerik
                         if(feat === 'İlan No' && raw.includes('#')) {
                             let id = raw.replace('#','').trim();
                             td.innerHTML = `<div>${raw}</div><a href="https://sahibinden.com/ilan/${id}/detay" target="_blank" class="ad-link-btn">İlana Git 🔗</a>`;
@@ -503,18 +502,18 @@
                             td.textContent = raw;
                         }
 
-                        // --- VURGULAMA KONTROLÜ ---
+                        // --- VURGULAMA MANTIĞI ---
                         let highlightClass = '';
                         
-                        // Fiyat (Düşük İyi)
+                        // 1. Fiyat
                         if(feat === 'Fiyat' && parseTRNumber(raw) === bests.minPrice) {
                             highlightClass = 'advantage-cell type-price';
                         }
-                        // Birim Fiyat (Düşük İyi)
+                        // 2. Birim Fiyat
                         else if(feat.includes('Birim') && parseTRNumber(raw) === bests.minUnit) {
                             highlightClass = 'advantage-cell type-price';
                         }
-                        // m² (Büyük İyi) - Net Kontrolü
+                        // 3. Net m²
                         else if((feat.includes('m²') || feat.includes('Metrekare'))) {
                             let val = 0;
                             if(raw.includes('/')) {
@@ -528,7 +527,7 @@
                                 highlightClass = 'advantage-cell type-size';
                             }
                         }
-                        // Yaş (Küçük İyi)
+                        // 4. Bina Yaşı
                         else if((feat.includes('Yaş') || feat.includes('Bina')) && parseAge(raw) === bests.minAge) {
                             highlightClass = 'advantage-cell type-age';
                         }
