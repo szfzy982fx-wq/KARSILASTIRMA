@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portföy Yönetim ve Karşılaştırma Sistemi</title>
+    <title>Portföy Yönetim Sistemi (Mobil Uyumlu)</title>
     <style>
         :root {
             --primary: #2c3e50; /* Lacivert */
@@ -12,6 +12,7 @@
             --danger: #c0392b; /* Kırmızı */
             --light: #ecf0f1;
             --border: #bdc3c7;
+            --btn-link: #3498db; /* Link Buton Rengi (Mavi) */
         }
 
         body {
@@ -22,7 +23,7 @@
             padding: 20px;
         }
 
-        /* --- KONTROL PANELİ (Ekranda görünür, baskıda gizlenir) --- */
+        /* --- KONTROL PANELİ --- */
         .control-panel {
             background: white;
             padding: 20px;
@@ -46,6 +47,7 @@
             font-size: 11px;
             margin-bottom: 10px;
             background: #fafafa;
+            box-sizing: border-box; /* Taşmayı engeller */
         }
 
         /* Butonlar */
@@ -57,17 +59,26 @@
             font-weight: 600;
             font-size: 13px;
             transition: 0.2s;
+            white-space: nowrap;
         }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--secondary); }
         .btn-success { background: var(--accent); color: white; }
         .btn-danger { background: var(--danger); color: white; font-size: 11px; padding: 5px 10px; }
-        .btn-outline { border: 1px solid var(--primary); background: transparent; color: var(--primary); }
+        
+        /* Panel Düzeni (Flex) */
+        .panel-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .panel-col { flex: 1; }
 
-        /* Portföy Listesi (Checkbox Alanı) */
+        /* Portföy Listesi */
         .portfolio-list {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 10px;
             margin-top: 15px;
             max-height: 300px;
@@ -86,7 +97,6 @@
             align-items: center;
             justify-content: space-between;
         }
-
         .portfolio-item label {
             display: flex;
             align-items: center;
@@ -95,44 +105,44 @@
             font-size: 13px;
             font-weight: 600;
             flex-grow: 1;
+            overflow: hidden; /* Uzun metin taşmasın */
+        }
+        .portfolio-item span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* --- RAPOR ALANI --- */
         .report-section {
-            background: white;
             margin: 0 auto;
             max-width: 297mm; /* A4 Yatay */
         }
 
-        /* Her sayfa (Table Container) */
         .report-page {
             padding: 20px 40px;
             background: white;
             margin-bottom: 30px;
             box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            min-height: 190mm; /* A4'e yakın */
+            min-height: 190mm;
             position: relative;
+            box-sizing: border-box;
         }
 
-        .page-break {
-            height: 20px;
-            background: #e0e0e0;
-            margin: 20px 0;
-            border-radius: 4px;
-            text-align: center;
-            line-height: 20px;
-            color: #666;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        /* Mobil İçin Tablo Kaydırma Alanı */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto; /* Yatay Scroll */
+            -webkit-overflow-scrolling: touch; /* Mobilde akıcı kaydırma */
         }
 
-        /* Tablo Tasarımı */
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 12px;
-            table-layout: fixed; /* Sütun genişliklerini sabitle */
+            /* Mobilde tablo büzüşmesin diye min-width verebiliriz */
+            min-width: 800px; 
+            table-layout: fixed; 
         }
 
         th, td {
@@ -143,16 +153,17 @@
             word-wrap: break-word;
         }
 
-        /* İlk Sütun (Özellikler) */
         .col-feature {
             width: 140px;
             background-color: var(--primary);
             color: white;
             font-weight: bold;
             text-align: left;
+            position: sticky; /* Özellik sütunu mobilde kaybolmasın */
+            left: 0;
+            z-index: 5;
         }
 
-        /* Başlık Satırı */
         thead th {
             background-color: var(--secondary);
             color: white;
@@ -168,56 +179,115 @@
             background: var(--danger);
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 24px; /* Mobilde basması kolay olsun diye büyüttük */
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             border: 2px solid white;
             z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .delete-col-btn:hover { transform: scale(1.1); }
 
-        /* Vurgulamalar */
+        /* YENİ: Buton Görünümlü Link */
+        .ad-link-btn {
+            display: inline-block;
+            background-color: var(--btn-link);
+            color: white !important;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            width: 80%; /* Hücreye yayılsın */
+            max-width: 150px;
+        }
+        .ad-link-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .ad-link-btn:active {
+            transform: translateY(0);
+        }
+
         .best-price {
             background-color: #e8f8f5 !important;
             color: var(--accent) !important;
             font-weight: 800;
             border: 2px solid var(--accent);
         }
-        
-        .ad-link {
-            text-decoration: none;
-            color: var(--primary);
-            font-weight: bold;
-            display: block;
-            margin-top: 5px;
+
+        .page-break {
+            height: 20px;
+            background: #e0e0e0;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: center;
+            line-height: 20px;
+            color: #666;
             font-size: 10px;
         }
 
-        /* --- BASKI AYARLARI (PRINT) --- */
+        /* --- MOBİL UYUMLULUK (Responsive) --- */
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            
+            .control-panel { padding: 15px; }
+            .panel-row { flex-direction: column; gap: 30px; }
+            
+            .report-page {
+                padding: 15px;
+                min-height: auto;
+                width: 100%;
+            }
+
+            /* Mobilde tablo scroll olurken başlık sütunu (sticky) üstte kalsın */
+            .col-feature {
+                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            }
+            
+            /* Mobilde X butonunu biraz daha içeri alalım ki scrollbar altında kalmasın */
+            .delete-col-btn {
+                right: -5px; top: -12px;
+            }
+        }
+
+        /* --- BASKI AYARLARI --- */
         @media print {
             body { padding: 0; background: white; }
             .control-panel, .page-break { display: none !important; }
-            .delete-col-btn { display: none !important; } /* X butonlarını gizle */
+            .delete-col-btn { display: none !important; }
             
             .report-page {
                 box-shadow: none;
                 margin: 0;
                 padding: 10mm;
-                page-break-after: always; /* Her tablodan sonra sayfa kes */
+                page-break-after: always;
                 width: 100%;
                 max-width: 100%;
             }
             .report-page:last-child { page-break-after: auto; }
-
-            @page {
-                size: A4 landscape;
-                margin: 0;
+            
+            /* Baskıda scroll olmasın, sığsın */
+            .table-wrapper { overflow: visible; width: 100%; }
+            table { min-width: 100%; width: 100%; table-layout: fixed; }
+            
+            /* Baskıda link butonu daha sade görünsün */
+            .ad-link-btn {
+                background-color: transparent;
+                color: var(--primary) !important;
+                border: 1px solid var(--primary);
+                box-shadow: none;
+                padding: 5px 10px;
             }
-            /* Renkleri zorla */
+
+            @page { size: A4 landscape; margin: 0; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
@@ -225,47 +295,51 @@
 <body>
 
     <div class="control-panel">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-            <div style="flex:1; margin-right:20px;">
+        <div class="panel-row">
+            <div class="panel-col">
                 <h3>1. Veri Girişi (JSON)</h3>
                 <div class="input-area">
                     <textarea id="jsonInput" placeholder="Sohbetten aldığınız JSON kodunu buraya yapıştırın..."></textarea>
-                    <button class="btn btn-primary" onclick="jsonHavuzaEkle()">📥 Havuza Ekle</button>
-                    <span id="statusMsg" style="font-size:12px; margin-left:10px; color:green;"></span>
+                    <div style="margin-top:5px;">
+                        <button class="btn btn-primary" onclick="jsonHavuzaEkle()">📥 Havuza Ekle</button>
+                        <span id="statusMsg" style="font-size:12px; margin-left:10px; color:green;"></span>
+                    </div>
                 </div>
             </div>
-            <div style="flex:1;">
+
+            <div class="panel-col">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3>2. Portföyüm (Seçim Yapın)</h3>
+                    <h3>2. Portföyüm</h3>
                     <button class="btn btn-danger" onclick="havuzuTemizle()">Tümünü Sil</button>
                 </div>
+                
                 <div id="portfolioList" class="portfolio-list">
-                    <div style="color:#999; font-size:12px; padding:10px;">Henüz ilan eklenmedi.</div>
+                    <div style="color:#999; font-size:12px; padding:10px;">Liste boş.</div>
                 </div>
-                <div style="margin-top:10px; text-align:right;">
+
+                <div style="margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
                     <button class="btn btn-success" onclick="raporuOlustur()">📊 Seçilenleri Raporla</button>
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ PDF İndir</button>
+                </div>
+                <div style="margin-top:10px; text-align:right; font-size:11px; color:#666;">
+                    * Tabloda sütun başındaki (X) ile gizleme yapabilirsiniz.
                 </div>
             </div>
-        </div>
-        
-        <div style="border-top:1px solid #eee; margin-top:20px; padding-top:15px; display:flex; justify-content:space-between;">
-             <span style="font-size:12px; color:#666;">İpucu: Tabloda istemediğiniz sütunu, başlığındaki kırmızı (X) butonuna basarak kaldırabilirsiniz.</span>
-             <button class="btn btn-primary" onclick="window.print()">🖨️ PDF İndir / Yazdır</button>
         </div>
     </div>
 
     <div id="reportContainer" class="report-section">
-        <div style="text-align:center; padding:50px; color:#999;">
-            Lütfen yukarıdan ilanları seçip "Raporla" butonuna basınız.
+        <div style="text-align:center; padding:50px; color:#999; border: 2px dashed #ddd; border-radius: 10px;">
+            <h3>Rapor Alanı</h3>
+            <p>Yukarıdan ilanları seçip "Seçilenleri Raporla" butonuna basınız.</p>
         </div>
     </div>
 
     <script>
         // --- DEĞİŞKENLER VE BAŞLANGIÇ ---
-        let globalPortfolio = []; // Tüm ilanların tutulduğu hafıza
-        const STORAGE_KEY = 'emlak_portfoyu_v1';
+        let globalPortfolio = []; 
+        const STORAGE_KEY = 'emlak_portfoyu_v2_mobil';
 
-        // Sayfa açılınca hafızayı yükle
         window.onload = function() {
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) {
@@ -274,56 +348,46 @@
             }
         };
 
-        // --- 1. VERİ İŞLEME (JSON -> OBJE) ---
+        // --- 1. VERİ EKLEME ---
         function jsonHavuzaEkle() {
             const rawJson = document.getElementById('jsonInput').value;
             if (!rawJson.trim()) { alert("Lütfen JSON kodu yapıştırın."); return; }
 
             try {
                 const data = JSON.parse(rawJson);
-                // JSON yapısı: { basliklar: {...}, satirlar: [...] }
-                // Bunu her ilan için bağımsız objeye çevirmeliyiz.
-
-                const keys = Object.keys(data.basliklar); // ilan1, ilan2...
+                const keys = Object.keys(data.basliklar); 
                 
                 let addedCount = 0;
                 keys.forEach(key => {
-                    // Benzersiz ID oluştur (zaman damgası + rastgele)
                     const uniqueId = 'ad_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-                    
-                    // İlan objesi oluştur
                     let newAd = {
                         id: uniqueId,
                         baslik: data.basliklar[key],
                         ozellikler: {}
                     };
 
-                    // Özellikleri doldur
                     data.satirlar.forEach(row => {
                         newAd.ozellikler[row.ozellik] = row[key] || '-';
                     });
 
-                    // Listeye ekle
                     globalPortfolio.push(newAd);
                     addedCount++;
                 });
 
-                // Hafızaya kaydet
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(globalPortfolio));
                 
-                // UI Güncelle
                 document.getElementById('jsonInput').value = '';
-                document.getElementById('statusMsg').textContent = `${addedCount} ilan başarıyla eklendi!`;
+                document.getElementById('statusMsg').textContent = `+${addedCount} İlan Eklendi`;
                 setTimeout(() => document.getElementById('statusMsg').textContent = '', 3000);
                 renderPortfolioList();
 
             } catch (e) {
                 console.error(e);
-                alert("JSON Hatası: Kod formatı hatalı. Lütfen Gemini'den aldığınız kodu tam kopyaladığınızdan emin olun.");
+                alert("Hatalı JSON formatı! Kodu tam kopyaladığınızdan emin olun.");
             }
         }
 
-        // --- 2. LİSTELEME VE SEÇİM ---
+        // --- 2. LİSTELEME ---
         function renderPortfolioList() {
             const listEl = document.getElementById('portfolioList');
             listEl.innerHTML = '';
@@ -337,12 +401,14 @@
                 const item = document.createElement('div');
                 item.className = 'portfolio-item';
                 
-                // Checkbox varsayılan olarak seçili gelsin
+                // İlan Fiyatı (Varsa parantez içinde göster)
+                let fiyat = ilan.ozellikler['Fiyat'] || '';
+                if(fiyat) fiyat = `(${fiyat})`;
+
                 item.innerHTML = `
                     <label>
                         <input type="checkbox" value="${index}" checked>
-                        <span>${ilan.baslik}</span>
-                        <span style="font-weight:normal; color:#666; font-size:11px;">(${ilan.ozellikler['Fiyat'] || '?'})</span>
+                        <span><b>${ilan.baslik}</b> <span style="font-weight:normal; color:#666; font-size:11px;">${fiyat}</span></span>
                     </label>
                     <button class="btn btn-danger" onclick="ilaniSil(${index})">Sil</button>
                 `;
@@ -357,7 +423,7 @@
         }
 
         function havuzuTemizle() {
-            if(confirm('Tüm kayıtlı ilanlar silinecek. Emin misiniz?')) {
+            if(confirm('DİKKAT: Kayıtlı tüm ilanlar silinecek. Onaylıyor musunuz?')) {
                 globalPortfolio = [];
                 localStorage.removeItem(STORAGE_KEY);
                 renderPortfolioList();
@@ -365,61 +431,52 @@
             }
         }
 
-        // --- 3. RAPOR OLUŞTURMA (PAGINATION MANTIĞI) ---
+        // --- 3. RAPOR OLUŞTURMA (MOBİL UYUMLU) ---
         function raporuOlustur() {
-            // Seçili ilanları bul
             const checkboxes = document.querySelectorAll('#portfolioList input[type="checkbox"]:checked');
             if (checkboxes.length === 0) {
-                alert("Lütfen listeden en az bir ilan seçin.");
+                alert("Lütfen en az bir ilan seçin.");
                 return;
             }
 
             const selectedAds = [];
-            checkboxes.forEach(cb => {
-                selectedAds.push(globalPortfolio[cb.value]);
-            });
-
-            // En iyi fiyatları hesapla (Tüm seçilenler arasında global karşılaştırma)
+            checkboxes.forEach(cb => { selectedAds.push(globalPortfolio[cb.value]); });
             const globalBestPrices = calculateBestPrices(selectedAds);
-
-            // Container'ı temizle
             const container = document.getElementById('reportContainer');
             container.innerHTML = '';
 
-            // --- SAYFALAMA AYARLARI ---
-            const ADS_PER_PAGE = 6; // Bir sayfada en fazla 6 ilan
+            const ADS_PER_PAGE = 6;
             const totalPages = Math.ceil(selectedAds.length / ADS_PER_PAGE);
 
             for (let page = 0; page < totalPages; page++) {
-                // Sayfa Div'i
                 const pageDiv = document.createElement('div');
                 pageDiv.className = 'report-page';
                 
-                // Başlık
                 const date = new Date().toLocaleDateString('tr-TR');
                 pageDiv.innerHTML = `
-                    <div style="border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:end;">
+                    <div style="border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap;">
                         <div>
-                            <h1 style="margin:0; font-size:24px; color:var(--primary);">GAYRİMENKUL DEĞERLEME RAPORU</h1>
-                            <div style="color:#7f8c8d; font-size:12px; margin-top:5px;">KARŞILAŞTIRMALI PİYASA ANALİZİ | Sayfa ${page + 1} / ${totalPages}</div>
+                            <h1 style="margin:0; font-size:24px; color:var(--primary);">DEĞERLEME RAPORU</h1>
+                            <div style="color:#7f8c8d; font-size:12px; margin-top:5px;">PİYASA ANALİZİ | Sayfa ${page + 1} / ${totalPages}</div>
                         </div>
-                        <div style="text-align:right; font-size:12px; color:#666;">Tarih: ${date}</div>
+                        <div style="text-align:right; font-size:12px; color:#666; margin-top:10px;">Tarih: ${date}</div>
                     </div>
                 `;
 
-                // Tablo oluştur
+                // Scroll Wrapper (Mobil için)
+                const tableWrapper = document.createElement('div');
+                tableWrapper.className = 'table-wrapper';
+
                 const table = document.createElement('table');
                 const thead = document.createElement('thead');
                 const tbody = document.createElement('tbody');
 
-                // O sayfadaki ilanları dilimle (Slice)
                 const startIdx = page * ADS_PER_PAGE;
                 const endIdx = startIdx + ADS_PER_PAGE;
                 const pageAds = selectedAds.slice(startIdx, endIdx);
 
-                // --- TABLO BAŞLIĞI (HEADER) ---
+                // BAŞLIKLAR
                 const trHead = document.createElement('tr');
-                // İlk sütun (Boş)
                 const thFeature = document.createElement('th');
                 thFeature.className = 'col-feature';
                 thFeature.textContent = 'ÖZELLİKLER';
@@ -427,69 +484,60 @@
 
                 pageAds.forEach(ilan => {
                     const th = document.createElement('th');
-                    // X Butonu ekle
                     th.innerHTML = `
                         ${ilan.baslik}
-                        <div class="delete-col-btn" onclick="sutunuKaldir(this)" title="Bu sütunu rapordan kaldır">✕</div>
+                        <div class="delete-col-btn" onclick="sutunuKaldir(this)" title="Gizle">✕</div>
                     `;
                     trHead.appendChild(th);
                 });
                 thead.appendChild(trHead);
                 table.appendChild(thead);
 
-                // --- TABLO GÖVDESİ (BODY) ---
-                // Özelliklerin listesini almak için ilk ilanı referans alabiliriz ama
-                // garantili olsun diye tüm ilanların özelliklerini birleştirip benzersiz liste yapalım.
-                // Basitlik için standart bir sıra belirleyelim veya ilk ilandaki sırayı kullanalım.
-                // En sağlıklısı: İlk ilanın özellik sırasını baz almak.
-                
-                const featureList = Object.keys(pageAds[0].ozellikler);
-
-                featureList.forEach(featKey => {
-                    const tr = document.createElement('tr');
-                    
-                    // Özellik Adı
-                    const tdLabel = document.createElement('td');
-                    tdLabel.className = 'col-feature';
-                    tdLabel.textContent = featKey;
-                    tr.appendChild(tdLabel);
-
-                    // İlan Değerleri
-                    pageAds.forEach(ilan => {
-                        const td = document.createElement('td');
-                        let content = ilan.ozellikler[featKey];
+                // GÖVDE
+                if(pageAds.length > 0) {
+                    const featureList = Object.keys(pageAds[0].ozellikler);
+                    featureList.forEach(featKey => {
+                        const tr = document.createElement('tr');
                         
-                        // İlan No Linkleme
-                        if (featKey === "İlan No" && content.includes("#")) {
-                            const cleanId = content.replace('#', '').trim();
-                            td.innerHTML = `
-                                ${content}
-                                <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link">İlana Git 🔗</a>
-                            `;
-                        } else {
-                            td.textContent = content;
-                        }
+                        const tdLabel = document.createElement('td');
+                        tdLabel.className = 'col-feature';
+                        tdLabel.textContent = featKey;
+                        tr.appendChild(tdLabel);
 
-                        // Vurgulama Kontrolü (Global en iyi fiyat mı?)
-                        // Bu ilanın ID'si global "kazananlar" listesinde var mı ve özellik fiyat mı?
-                        if ((featKey === 'Fiyat' || featKey.includes('Birim')) && 
-                            globalBestPrices[featKey] === parseFloat(content.replace(/\./g,'').replace(/[^0-9.]/g,''))) {
-                             td.classList.add('best-price');
-                             // Sadece sayısal eşitlik yetmez, en düşük olmalı.
-                             // Basitlik için: calculateBestPrices fonksiyonu "en düşük değeri" dönsün.
-                             // Biz de buradaki değeri parse edip karşılaştıralım.
-                        }
+                        pageAds.forEach(ilan => {
+                            const td = document.createElement('td');
+                            let content = ilan.ozellikler[featKey];
+                            
+                            // LINK BUTONU (GÜNCELLEME)
+                            if (featKey === "İlan No" && content.includes("#")) {
+                                const cleanId = content.replace('#', '').trim();
+                                td.innerHTML = `
+                                    <div style="font-weight:bold; margin-bottom:5px;">${content}</div>
+                                    <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link-btn">
+                                        İlana Git 🔗
+                                    </a>
+                                `;
+                            } else {
+                                td.textContent = content;
+                            }
 
-                        tr.appendChild(td);
+                            // VURGULAMA
+                            if ((featKey === 'Fiyat' || featKey.includes('Birim')) && 
+                                globalBestPrices[featKey] === parseFloat(content.replace(/\./g,'').replace(/[^0-9.]/g,''))) {
+                                 td.classList.add('best-price');
+                            }
+
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
                     });
-                    tbody.appendChild(tr);
-                });
+                }
 
                 table.appendChild(tbody);
-                pageDiv.appendChild(table);
+                tableWrapper.appendChild(table);
+                pageDiv.appendChild(tableWrapper);
                 container.appendChild(pageDiv);
 
-                // Sayfa arası boşluk (Son sayfa hariç)
                 if (page < totalPages - 1) {
                     const separator = document.createElement('div');
                     separator.className = 'page-break';
@@ -499,22 +547,15 @@
             }
         }
 
-        // --- YARDIMCI: EN İYİ FİYAT HESAPLAMA ---
         function calculateBestPrices(ads) {
-            let bests = {}; // { 'Fiyat': 12000000, 'Birim Fiyat': 74000 }
-            
-            // Kontrol edilecek alanlar
+            let bests = {}; 
             const keysToCheck = ['Fiyat', 'Birim Fiyat (Net m²)'];
-
             keysToCheck.forEach(key => {
                 let minVal = Infinity;
                 ads.forEach(ad => {
                     if (ad.ozellikler[key]) {
-                        // "12.500.000 TL" -> 12500000
                         let val = parseFloat(ad.ozellikler[key].replace(/\./g, '').replace(/[^0-9.]/g, ''));
-                        if (!isNaN(val) && val > 0 && val < minVal) {
-                            minVal = val;
-                        }
+                        if (!isNaN(val) && val > 0 && val < minVal) minVal = val;
                     }
                 });
                 if (minVal !== Infinity) bests[key] = minVal;
@@ -522,30 +563,20 @@
             return bests;
         }
 
-        // --- YARDIMCI: SÜTUN SİLME (DOM ÜZERİNDEN) ---
         function sutunuKaldir(btn) {
-            // Hangi TH içindeyiz?
             const th = btn.parentElement;
-            // Hangi sütun sırasındayız (index)?
             const cellIndex = th.cellIndex;
-            // Hangi tablonun içindeyiz?
             const table = th.closest('table');
-
-            // Tablodaki her satırı dön ve o indexteki hücreyi sil
             const rows = table.rows;
             for (let i = 0; i < rows.length; i++) {
                 if (rows[i].cells.length > cellIndex) {
                     rows[i].deleteCell(cellIndex);
                 }
             }
-            
-            // Eğer tabloda hiç ilan kalmadıysa (sadece özellik sütunu kaldıysa), sayfayı komple gizle veya uyar
             if (table.rows[0].cells.length === 1) {
                table.closest('.report-page').style.display = 'none';
-               // Eğer ara çizgi varsa onu da gizle (basit çözüm)
             }
         }
-
     </script>
 </body>
 </html>
