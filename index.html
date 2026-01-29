@@ -6,10 +6,10 @@
     <title>Gayrimenkul Değerleme ve Karşılaştırma Raporu</title>
     <style>
         :root {
-            --primary: #2c3e50; /* Lacivert - Kurumsal */
+            --primary: #2c3e50; /* Lacivert */
             --secondary: #34495e; /* Koyu Gri */
-            --accent: #27ae60; /* Zümrüt Yeşili - Onay/Avantaj */
-            --highlight-bg: #e8f8f5; /* Açık Yeşil Zemin */
+            --accent: #27ae60; /* Zümrüt Yeşili */
+            --highlight-bg: #e8f8f5; 
             --border: #bdc3c7;
             --bg: #f5f6fa;
         }
@@ -22,7 +22,7 @@
             padding: 20px;
         }
 
-        /* Kontrol Paneli (Yazdırınca Gizlenir) */
+        /* Kontrol Paneli */
         .control-panel {
             background: white;
             padding: 20px;
@@ -32,11 +32,12 @@
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
+            border-left: 5px solid var(--accent);
         }
 
         textarea {
             width: 100%;
-            height: 120px;
+            height: 150px;
             border: 1px solid var(--border);
             border-radius: 4px;
             padding: 10px;
@@ -44,18 +45,20 @@
             font-size: 12px;
             margin-bottom: 10px;
             box-sizing: border-box;
+            background-color: #fafafa;
         }
 
         .btn {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 25px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
             margin-right: 10px;
+            transition: background 0.2s;
         }
 
         .btn:hover { background-color: var(--secondary); }
@@ -63,7 +66,7 @@
 
         /* Rapor Alanı */
         .report-container {
-            max-width: 297mm; /* A4 Yatay Genişliği */
+            max-width: 297mm; /* A4 Yatay */
             margin: 0 auto;
             background: white;
             padding: 40px;
@@ -94,35 +97,19 @@
             text-align: right;
         }
 
-        /* Tablo Tasarımı */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
+        /* Tablo */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { border: 1px solid var(--border); padding: 12px 15px; text-align: center; vertical-align: middle; }
 
-        th, td {
-            border: 1px solid var(--border);
-            padding: 12px 15px;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        /* İlk Sütun (Özellik İsimleri) */
+        /* İlk Sütun */
         td:first-child {
             background-color: var(--primary);
             color: white;
             font-weight: bold;
             text-align: left;
             width: 180px;
-            position: sticky;
-            left: 0;
         }
 
-        /* Başlık Satırı (İlan İsimleri - Tabloda row 0 değil, veriden gelecek) */
-        /* Bizim yapımızda başlıklar row değil column header gibi davranmalı ama veri yapısı satır bazlı.
-           Bu yüzden JS ile başlıkları THEAD içine alacağız. */
-        
         thead th {
             background-color: var(--secondary);
             color: white;
@@ -131,7 +118,7 @@
             font-size: 14px;
         }
 
-        /* Link Tasarımı */
+        /* Link & İkon */
         .ad-link {
             display: inline-flex;
             align-items: center;
@@ -142,58 +129,26 @@
             background: #f0f2f5;
             padding: 5px 10px;
             border-radius: 20px;
-            transition: all 0.2s;
             font-size: 12px;
         }
+        .ad-link:hover { background-color: #ffeaa7; transform: translateY(-2px); }
+        .site-icon { width: 16px; height: 16px; margin-right: 6px; fill: #f1c40f; }
 
-        .ad-link:hover {
-            background-color: #ffeaa7;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        /* Logo İkonu (SVG) */
-        .site-icon {
-            width: 16px;
-            height: 16px;
-            margin-right: 6px;
-            fill: #f1c40f; /* Sahibinden sarısı temsili */
-        }
-
-        /* En İyi Fiyat Vurgusu */
+        /* Vurgulama */
         .best-price {
             background-color: var(--highlight-bg) !important;
             color: var(--accent) !important;
             font-weight: 800 !important;
             border: 2px solid var(--accent) !important;
         }
-        
-        .best-badge {
-            display: block;
-            font-size: 10px;
-            color: var(--accent);
-            text-transform: uppercase;
-            margin-top: 4px;
-        }
+        .best-badge { display: block; font-size: 10px; color: var(--accent); text-transform: uppercase; margin-top: 4px; }
 
-        /* Baskı Ayarları */
         @media print {
             body { background: white; padding: 0; }
             .control-panel { display: none; }
-            .report-container { 
-                box-shadow: none; 
-                padding: 0; 
-                margin: 0; 
-                width: 100%;
-                max-width: 100%;
-            }
-            @page {
-                size: A4 landscape;
-                margin: 10mm;
-            }
-            /* Linklerin URL'ini yazdırmayı engelle */
+            .report-container { box-shadow: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
+            @page { size: A4 landscape; margin: 10mm; }
             a[href]:after { content: none !important; }
-            /* Arka plan renklerini zorla çıkar */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
@@ -202,11 +157,11 @@
 
     <div class="control-panel">
         <h3>📊 Veri Girişi</h3>
-        <p>Aşağıya JSON kodunuzu yapıştırın ve "Tabloyu Oluştur" butonuna basın.</p>
-        <textarea id="jsonInput"></textarea>
+        <p>Aşağıdaki kutuya JSON verisini yapıştırın ve raporu oluşturun.</p>
+        <textarea id="jsonInput" placeholder='JSON kodunu buraya yapıştırın...'></textarea>
         <br>
         <button class="btn" onclick="generateTable()">Tabloyu Oluştur</button>
-        <button class="btn btn-print" onclick="window.print()">🖨️ PDF Olarak Kaydet / Yazdır</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ PDF Olarak Kaydet</button>
     </div>
 
     <div class="report-container">
@@ -222,7 +177,10 @@
         </div>
 
         <table id="comparisonTable">
-            </table>
+            <tbody>
+                <tr><td colspan="100" style="text-align:center; padding:50px; color:#999; background:white;">Veri bekleniyor... Lütfen yukarıdaki panele JSON kodunu yapıştırın.</td></tr>
+            </tbody>
+        </table>
         
         <div style="margin-top: 30px; font-size: 11px; color: #95a5a6; border-top: 1px solid #eee; padding-top: 10px;">
             * Bu rapor piyasa verileri baz alınarak bilgilendirme amaçlı hazırlanmıştır. Yeşil ile işaretlenen alanlar matematiksel olarak en avantajlı seçeneği gösterir.
@@ -230,54 +188,32 @@
     </div>
 
     <script>
-        // Varsayılan JSON Verisi (Sizin son analiziniz)
-        const defaultData = {
-          "basliklar": {
-            "ilan1": "Kiracılı Standart",
-            "ilan2": "Lara Modern Prestige",
-            "ilan3": "Kiracılı Alternatif",
-            "ilan4": "Amerikan Mutfak",
-            "ilan5": "1. Kat Daire",
-            "ilan6": "Fiyat Fırsatı"
-          },
-          "satirlar": [
-            { "ozellik": "İlan No", "ilan1": "#1291460711", "ilan2": "#1275151203", "ilan3": "#1289940943", "ilan4": "#1296508767", "ilan5": "#1269908416", "ilan6": "#1292045153" },
-            { "ozellik": "Birim Fiyat (Net m²)", "ilan1": "83.870 TL/m²", "ilan2": "74.705 TL/m²", "ilan3": "83.870 TL/m²", "ilan4": "83.333 TL/m²", "ilan5": "-", "ilan6": "88.888 TL/m²" },
-            { "ozellik": "Fiyat", "ilan1": "13.000.000 TL", "ilan2": "12.700.000 TL", "ilan3": "13.000.000 TL", "ilan4": "12.500.000 TL", "ilan5": "-", "ilan6": "12.000.000 TL" },
-            { "ozellik": "m² (Brüt / Net)", "ilan1": "160 m² / 155 m²", "ilan2": "185 m² / 170 m²", "ilan3": "160 m² / 155 m²", "ilan4": "165 m² / 150 m²", "ilan5": "150 m² / 140 m²", "ilan6": "150 m² / 135 m²" },
-            { "ozellik": "Oda Sayısı", "ilan1": "3+1", "ilan2": "3+1", "ilan3": "3+1", "ilan4": "3+1", "ilan5": "3+1", "ilan6": "3+1" },
-            { "ozellik": "Bina Yaşı", "ilan1": "6-10 Arası", "ilan2": "6-10 Arası", "ilan3": "6-10 Arası", "ilan4": "6-10 Arası", "ilan5": "6-10 Arası", "ilan6": "6-10 Arası" },
-            { "ozellik": "Isıtma", "ilan1": "Kombi (Doğalgaz)", "ilan2": "Kombi (Doğalgaz)", "ilan3": "Kombi (Doğalgaz)", "ilan4": "Klima", "ilan5": "Kombi (Doğalgaz)", "ilan6": "Kombi (Doğalgaz)" },
-            { "ozellik": "Site / Otopark", "ilan1": "Evet / Kapalı", "ilan2": "Lara Modern / Kapalı", "ilan3": "Evet / Kapalı", "ilan4": "Hayır / Kapalı", "ilan5": "Evet / Kapalı", "ilan6": "Evet / Kapalı" }
-          ]
-        };
-
-        // Sayfa yüklendiğinde
-        document.getElementById('jsonInput').value = JSON.stringify(defaultData, null, 2);
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString('tr-TR');
-        generateTable();
 
         function generateTable() {
             const rawJson = document.getElementById('jsonInput').value;
             let data;
+            
+            if (!rawJson.trim()) {
+                alert("Lütfen JSON kodunu yapıştırın.");
+                return;
+            }
+
             try {
                 data = JSON.parse(rawJson);
             } catch (e) {
-                alert("Hatalı JSON formatı! Lütfen kodu kontrol edin.");
+                alert("Hatalı JSON formatı! Lütfen kodu tam kopyaladığınızdan emin olun.");
                 return;
             }
 
             const table = document.getElementById('comparisonTable');
-            table.innerHTML = ""; // Temizle
+            table.innerHTML = ""; 
 
-            // 1. Başlık Satırını (Thead) Oluştur
+            // Başlıklar
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
-            
-            // İlk hücre boş (Özellik sütunu için)
             headerRow.appendChild(document.createElement('th')); 
 
-            // İlan başlıklarını ekle
             const ilanKeys = Object.keys(data.basliklar);
             ilanKeys.forEach(key => {
                 const th = document.createElement('th');
@@ -287,23 +223,21 @@
             thead.appendChild(headerRow);
             table.appendChild(thead);
 
-            // 2. Veri Satırlarını (Tbody) Oluştur
+            // Veriler
             const tbody = document.createElement('tbody');
-
             data.satirlar.forEach(row => {
                 const tr = document.createElement('tr');
                 
-                // Özellik Adı
+                // Özellik İsmi
                 const tdFeature = document.createElement('td');
                 tdFeature.textContent = row.ozellik;
                 tr.appendChild(tdFeature);
 
-                // Değerleri Bul ve İşle (Highlight için hazırlık)
+                // Matematiksel Hesaplama (En düşük vurgusu için)
                 let numericValues = [];
                 if (row.ozellik.includes("Fiyat") || row.ozellik.includes("Birim")) {
                     ilanKeys.forEach(key => {
                         let valStr = row[key] || "";
-                        // Sadece sayıları al (TL, nokta vb. temizle)
                         let valClean = parseFloat(valStr.replace(/\./g, '').replace(/[^0-9.]/g, ''));
                         if (!isNaN(valClean) && valClean > 0) {
                             numericValues.push({ key: key, val: valClean });
@@ -311,38 +245,25 @@
                     });
                 }
                 
-                // En düşük fiyatı bul
                 let minValKey = null;
                 if (numericValues.length > 0) {
-                    // Fiyat ise en düşük, m2 ise en büyük? (Genelde fiyat avantajı en düşüktedir)
-                    // Kullanıcı senaryosunda "En düşük fiyat" ve "En düşük birim fiyat" iyidir.
                     numericValues.sort((a, b) => a.val - b.val);
                     minValKey = numericValues[0].key;
                 }
 
-                // İlan Değerleri
+                // Hücreleri Doldur
                 ilanKeys.forEach(key => {
                     const td = document.createElement('td');
                     let content = row[key] || "-";
 
-                    // Özel Durum: İlan No Linkleme
                     if (row.ozellik === "İlan No" && content.includes("#")) {
                         const id = content.replace('#', '').trim();
                         const link = `https://www.sahibinden.com/ilan/${id}/detay`;
-                        // SVG İkon + Link
-                        td.innerHTML = `
-                            <a href="${link}" target="_blank" class="ad-link">
-                                <svg class="site-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                                ${content}
-                            </a>
-                        `;
-                    } 
-                    // Normal İçerik
-                    else {
+                        td.innerHTML = `<a href="${link}" target="_blank" class="ad-link"><svg class="site-icon" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>${content}</a>`;
+                    } else {
                         td.textContent = content;
                     }
 
-                    // Vurgulama (En iyi fiyat)
                     if (minValKey === key && (row.ozellik === "Fiyat" || row.ozellik.includes("Birim"))) {
                         td.classList.add("best-price");
                         const badge = document.createElement('span');
@@ -350,10 +271,8 @@
                         badge.textContent = "🏆 Fırsat";
                         td.appendChild(badge);
                     }
-
                     tr.appendChild(td);
                 });
-
                 tbody.appendChild(tr);
             });
             table.appendChild(tbody);
