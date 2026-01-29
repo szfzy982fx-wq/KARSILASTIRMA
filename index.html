@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portföy Yönetim Sistemi (Mobil Uyumlu)</title>
+    <title>Gelişmiş Emlak Portföy Yöneticisi</title>
     <style>
         :root {
             --primary: #2c3e50; /* Lacivert */
@@ -12,7 +12,7 @@
             --danger: #c0392b; /* Kırmızı */
             --light: #ecf0f1;
             --border: #bdc3c7;
-            --btn-link: #3498db; /* Link Buton Rengi (Mavi) */
+            --btn-link: #2980b9; /* Link Buton Rengi */
         }
 
         body {
@@ -47,7 +47,7 @@
             font-size: 11px;
             margin-bottom: 10px;
             background: #fafafa;
-            box-sizing: border-box; /* Taşmayı engeller */
+            box-sizing: border-box;
         }
 
         /* Butonlar */
@@ -105,7 +105,7 @@
             font-size: 13px;
             font-weight: 600;
             flex-grow: 1;
-            overflow: hidden; /* Uzun metin taşmasın */
+            overflow: hidden;
         }
         .portfolio-item span {
             white-space: nowrap;
@@ -129,19 +129,19 @@
             box-sizing: border-box;
         }
 
-        /* Mobil İçin Tablo Kaydırma Alanı */
+        /* Mobil Tablo Kaydırma */
         .table-wrapper {
             width: 100%;
-            overflow-x: auto; /* Yatay Scroll */
-            -webkit-overflow-scrolling: touch; /* Mobilde akıcı kaydırma */
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 5px; /* Scrollbar payı */
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 12px;
-            /* Mobilde tablo büzüşmesin diye min-width verebiliriz */
-            min-width: 800px; 
+            min-width: 800px; /* Mobilde büzüşmeyi engeller */
             table-layout: fixed; 
         }
 
@@ -159,9 +159,10 @@
             color: white;
             font-weight: bold;
             text-align: left;
-            position: sticky; /* Özellik sütunu mobilde kaybolmasın */
+            position: sticky;
             left: 0;
             z-index: 5;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
         }
 
         thead th {
@@ -179,7 +180,7 @@
             background: var(--danger);
             color: white;
             border-radius: 50%;
-            width: 24px; /* Mobilde basması kolay olsun diye büyüttük */
+            width: 24px;
             height: 24px;
             display: flex;
             align-items: center;
@@ -191,36 +192,44 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* YENİ: Buton Görünümlü Link */
+        /* Link Butonu */
         .ad-link-btn {
             display: inline-block;
             background-color: var(--btn-link);
             color: white !important;
             text-decoration: none;
-            padding: 8px 15px;
+            padding: 8px 12px;
             border-radius: 20px;
-            margin-top: 8px;
-            font-size: 12px;
+            margin-top: 6px;
+            font-size: 11px;
             font-weight: bold;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             transition: all 0.2s;
-            width: 80%; /* Hücreye yayılsın */
-            max-width: 150px;
+            width: 80%;
+            max-width: 140px;
         }
         .ad-link-btn:hover {
-            background-color: #2980b9;
+            background-color: #1f6391;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        .ad-link-btn:active {
-            transform: translateY(0);
-        }
 
-        .best-price {
+        /* Vurgulama Stilleri */
+        .advantage-cell {
             background-color: #e8f8f5 !important;
             color: var(--accent) !important;
             font-weight: 800;
             border: 2px solid var(--accent);
+            position: relative;
+        }
+        
+        /* Kazanan hücrelere minik ikon ekleyelim */
+        .advantage-cell::after {
+            content: '⭐';
+            font-size: 8px;
+            position: absolute;
+            top: 2px;
+            right: 2px;
         }
 
         .page-break {
@@ -234,35 +243,19 @@
             font-size: 10px;
         }
 
-        /* --- MOBİL UYUMLULUK (Responsive) --- */
+        /* --- MOBİL --- */
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
-            
             .control-panel { padding: 15px; }
-            .panel-row { flex-direction: column; gap: 30px; }
-            
-            .report-page {
-                padding: 15px;
-                min-height: auto;
-                width: 100%;
-            }
-
-            /* Mobilde tablo scroll olurken başlık sütunu (sticky) üstte kalsın */
-            .col-feature {
-                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            }
-            
-            /* Mobilde X butonunu biraz daha içeri alalım ki scrollbar altında kalmasın */
-            .delete-col-btn {
-                right: -5px; top: -12px;
-            }
+            .panel-row { flex-direction: column; gap: 20px; }
+            .report-page { padding: 15px; min-height: auto; width: 100%; }
+            .delete-col-btn { right: -5px; top: -12px; }
         }
 
-        /* --- BASKI AYARLARI --- */
+        /* --- BASKI --- */
         @media print {
             body { padding: 0; background: white; }
-            .control-panel, .page-break { display: none !important; }
-            .delete-col-btn { display: none !important; }
+            .control-panel, .page-break, .delete-col-btn { display: none !important; }
             
             .report-page {
                 box-shadow: none;
@@ -274,18 +267,19 @@
             }
             .report-page:last-child { page-break-after: auto; }
             
-            /* Baskıda scroll olmasın, sığsın */
+            /* Baskıda scroll olmasın */
             .table-wrapper { overflow: visible; width: 100%; }
             table { min-width: 100%; width: 100%; table-layout: fixed; }
             
-            /* Baskıda link butonu daha sade görünsün */
+            /* Link butonu sadeleşsin */
             .ad-link-btn {
-                background-color: transparent;
+                background: transparent;
                 color: var(--primary) !important;
                 border: 1px solid var(--primary);
                 box-shadow: none;
-                padding: 5px 10px;
+                padding: 4px 8px;
             }
+            .advantage-cell { border-width: 1px; background-color: #f0fff4 !important; }
 
             @page { size: A4 landscape; margin: 0; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -336,9 +330,9 @@
     </div>
 
     <script>
-        // --- DEĞİŞKENLER VE BAŞLANGIÇ ---
+        // --- AYARLAR ---
+        const STORAGE_KEY = 'emlak_portfoyu_v3_adv';
         let globalPortfolio = []; 
-        const STORAGE_KEY = 'emlak_portfoyu_v2_mobil';
 
         window.onload = function() {
             const savedData = localStorage.getItem(STORAGE_KEY);
@@ -365,25 +359,21 @@
                         baslik: data.basliklar[key],
                         ozellikler: {}
                     };
-
                     data.satirlar.forEach(row => {
                         newAd.ozellikler[row.ozellik] = row[key] || '-';
                     });
-
                     globalPortfolio.push(newAd);
                     addedCount++;
                 });
 
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(globalPortfolio));
-                
                 document.getElementById('jsonInput').value = '';
                 document.getElementById('statusMsg').textContent = `+${addedCount} İlan Eklendi`;
                 setTimeout(() => document.getElementById('statusMsg').textContent = '', 3000);
                 renderPortfolioList();
-
             } catch (e) {
                 console.error(e);
-                alert("Hatalı JSON formatı! Kodu tam kopyaladığınızdan emin olun.");
+                alert("JSON Hatası! Kodu eksiksiz kopyaladığınızdan emin olun.");
             }
         }
 
@@ -400,8 +390,6 @@
             globalPortfolio.forEach((ilan, index) => {
                 const item = document.createElement('div');
                 item.className = 'portfolio-item';
-                
-                // İlan Fiyatı (Varsa parantez içinde göster)
                 let fiyat = ilan.ozellikler['Fiyat'] || '';
                 if(fiyat) fiyat = `(${fiyat})`;
 
@@ -423,7 +411,7 @@
         }
 
         function havuzuTemizle() {
-            if(confirm('DİKKAT: Kayıtlı tüm ilanlar silinecek. Onaylıyor musunuz?')) {
+            if(confirm('Kayıtlı tüm ilanlar silinecek. Onaylıyor musunuz?')) {
                 globalPortfolio = [];
                 localStorage.removeItem(STORAGE_KEY);
                 renderPortfolioList();
@@ -431,17 +419,82 @@
             }
         }
 
-        // --- 3. RAPOR OLUŞTURMA (MOBİL UYUMLU) ---
+        // --- 3. GELİŞMİŞ HESAPLAMA ---
+        // Sayıları temizlemek için yardımcı
+        function parseNum(str) {
+            if(!str) return 0;
+            // Tüm sayı olmayan karakterleri temizle ama noktayı koru (binlik ayracı ise silinmeli)
+            // Türkiye formatında nokta binlik, virgül ondalık olabilir veya tam tersi.
+            // Genelde emlak sitelerinde: 12.500.000 (Tam sayı).
+            return parseFloat(str.toString().replace(/\./g, '').replace(/[^0-9.]/g, '')) || 0;
+        }
+
+        // Bina yaşını temizlemek için (İlk sayıyı alır)
+        function parseAge(str) {
+            if(!str) return 999; // Bilinmiyorsa yaşlı sayalım
+            if(str.toLowerCase().includes('sıfır') || str.includes('0')) return 0;
+            const match = str.match(/\d+/); // İlk bulduğu sayıyı al
+            return match ? parseInt(match[0]) : 999;
+        }
+
+        function calculateAdvantages(ads) {
+            let stats = {
+                minPrice: Infinity,
+                minUnit: Infinity,
+                maxM2: 0,
+                minAge: 999
+            };
+
+            ads.forEach(ad => {
+                // Fiyat
+                if (ad.ozellikler['Fiyat']) {
+                    let val = parseNum(ad.ozellikler['Fiyat']);
+                    if (val > 0 && val < stats.minPrice) stats.minPrice = val;
+                }
+                // Birim Fiyat
+                // Anahtar bazen "Birim Fiyat", bazen "Birim Fiyat (Net m²)" olabilir. İçinde "Birim" geçeni bulalım.
+                let unitKey = Object.keys(ad.ozellikler).find(k => k.includes('Birim'));
+                if (unitKey && ad.ozellikler[unitKey]) {
+                    let val = parseNum(ad.ozellikler[unitKey]);
+                    if (val > 0 && val < stats.minUnit) stats.minUnit = val;
+                }
+                // m² (En Büyüğü İyidir)
+                let m2Key = Object.keys(ad.ozellikler).find(k => k.includes('m²') || k.includes('Metrekare'));
+                if (m2Key && ad.ozellikler[m2Key]) {
+                    // "165 m² / 145 m²" formatında ikinciyi (Net) almaya çalışalım
+                    // Eğer "/" varsa böl, yoksa direkt al
+                    let raw = ad.ozellikler[m2Key];
+                    let val = 0;
+                    if(raw.includes('/')) {
+                        // Genelde Brüt / Net -> Net'i (2.yi) alalım
+                        let parts = raw.split('/');
+                        val = parseNum(parts[1]) || parseNum(parts[0]);
+                    } else {
+                        val = parseNum(raw);
+                    }
+                    if (val > stats.maxM2) stats.maxM2 = val;
+                }
+                // Bina Yaşı (En Küçüğü İyidir)
+                let ageKey = Object.keys(ad.ozellikler).find(k => k.includes('Yaş') || k.includes('Bina'));
+                if (ageKey && ad.ozellikler[ageKey]) {
+                    let val = parseAge(ad.ozellikler[ageKey]);
+                    if (val < stats.minAge) stats.minAge = val;
+                }
+            });
+            return stats;
+        }
+
+        // --- 4. RAPOR OLUŞTURMA ---
         function raporuOlustur() {
             const checkboxes = document.querySelectorAll('#portfolioList input[type="checkbox"]:checked');
-            if (checkboxes.length === 0) {
-                alert("Lütfen en az bir ilan seçin.");
-                return;
-            }
+            if (checkboxes.length === 0) { alert("Lütfen en az bir ilan seçin."); return; }
 
             const selectedAds = [];
             checkboxes.forEach(cb => { selectedAds.push(globalPortfolio[cb.value]); });
-            const globalBestPrices = calculateBestPrices(selectedAds);
+
+            // Avantajları Hesapla
+            const bestStats = calculateAdvantages(selectedAds);
+
             const container = document.getElementById('reportContainer');
             container.innerHTML = '';
 
@@ -463,10 +516,8 @@
                     </div>
                 `;
 
-                // Scroll Wrapper (Mobil için)
                 const tableWrapper = document.createElement('div');
                 tableWrapper.className = 'table-wrapper';
-
                 const table = document.createElement('table');
                 const thead = document.createElement('thead');
                 const tbody = document.createElement('tbody');
@@ -475,7 +526,7 @@
                 const endIdx = startIdx + ADS_PER_PAGE;
                 const pageAds = selectedAds.slice(startIdx, endIdx);
 
-                // BAŞLIKLAR
+                // HEADER
                 const trHead = document.createElement('tr');
                 const thFeature = document.createElement('th');
                 thFeature.className = 'col-feature';
@@ -484,16 +535,13 @@
 
                 pageAds.forEach(ilan => {
                     const th = document.createElement('th');
-                    th.innerHTML = `
-                        ${ilan.baslik}
-                        <div class="delete-col-btn" onclick="sutunuKaldir(this)" title="Gizle">✕</div>
-                    `;
+                    th.innerHTML = `${ilan.baslik} <div class="delete-col-btn" onclick="sutunuKaldir(this)" title="Gizle">✕</div>`;
                     trHead.appendChild(th);
                 });
                 thead.appendChild(trHead);
                 table.appendChild(thead);
 
-                // GÖVDE
+                // BODY
                 if(pageAds.length > 0) {
                     const featureList = Object.keys(pageAds[0].ozellikler);
                     featureList.forEach(featKey => {
@@ -507,26 +555,47 @@
                         pageAds.forEach(ilan => {
                             const td = document.createElement('td');
                             let content = ilan.ozellikler[featKey];
-                            
-                            // LINK BUTONU (GÜNCELLEME)
+                            let rawContent = content; // Analiz için ham hali
+
+                            // Link Butonu
                             if (featKey === "İlan No" && content.includes("#")) {
                                 const cleanId = content.replace('#', '').trim();
                                 td.innerHTML = `
                                     <div style="font-weight:bold; margin-bottom:5px;">${content}</div>
-                                    <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link-btn">
-                                        İlana Git 🔗
-                                    </a>
+                                    <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link-btn">İlana Git 🔗</a>
                                 `;
                             } else {
                                 td.textContent = content;
                             }
 
-                            // VURGULAMA
-                            if ((featKey === 'Fiyat' || featKey.includes('Birim')) && 
-                                globalBestPrices[featKey] === parseFloat(content.replace(/\./g,'').replace(/[^0-9.]/g,''))) {
-                                 td.classList.add('best-price');
+                            // --- VURGULAMA MANTIĞI ---
+                            let isBest = false;
+                            
+                            // 1. Fiyat (En Düşük)
+                            if (featKey === 'Fiyat') {
+                                if (parseNum(rawContent) === bestStats.minPrice) isBest = true;
+                            }
+                            // 2. Birim Fiyat (En Düşük)
+                            else if (featKey.includes('Birim')) {
+                                if (parseNum(rawContent) === bestStats.minUnit) isBest = true;
+                            }
+                            // 3. m² (En Yüksek) - Net'e bakar
+                            else if (featKey.includes('m²') || featKey.includes('Metrekare')) {
+                                let val = 0;
+                                if(rawContent.includes('/')) {
+                                    let parts = rawContent.split('/');
+                                    val = parseNum(parts[1]) || parseNum(parts[0]);
+                                } else {
+                                    val = parseNum(rawContent);
+                                }
+                                if (val === bestStats.maxM2) isBest = true;
+                            }
+                            // 4. Bina Yaşı (En Genç)
+                            else if (featKey.includes('Yaş') || featKey.includes('Bina')) {
+                                if (parseAge(rawContent) === bestStats.minAge) isBest = true;
                             }
 
+                            if (isBest) td.classList.add('advantage-cell');
                             tr.appendChild(td);
                         });
                         tbody.appendChild(tr);
@@ -547,35 +616,15 @@
             }
         }
 
-        function calculateBestPrices(ads) {
-            let bests = {}; 
-            const keysToCheck = ['Fiyat', 'Birim Fiyat (Net m²)'];
-            keysToCheck.forEach(key => {
-                let minVal = Infinity;
-                ads.forEach(ad => {
-                    if (ad.ozellikler[key]) {
-                        let val = parseFloat(ad.ozellikler[key].replace(/\./g, '').replace(/[^0-9.]/g, ''));
-                        if (!isNaN(val) && val > 0 && val < minVal) minVal = val;
-                    }
-                });
-                if (minVal !== Infinity) bests[key] = minVal;
-            });
-            return bests;
-        }
-
         function sutunuKaldir(btn) {
             const th = btn.parentElement;
             const cellIndex = th.cellIndex;
             const table = th.closest('table');
             const rows = table.rows;
             for (let i = 0; i < rows.length; i++) {
-                if (rows[i].cells.length > cellIndex) {
-                    rows[i].deleteCell(cellIndex);
-                }
+                if (rows[i].cells.length > cellIndex) rows[i].deleteCell(cellIndex);
             }
-            if (table.rows[0].cells.length === 1) {
-               table.closest('.report-page').style.display = 'none';
-            }
+            if (table.rows[0].cells.length === 1) table.closest('.report-page').style.display = 'none';
         }
     </script>
 </body>
