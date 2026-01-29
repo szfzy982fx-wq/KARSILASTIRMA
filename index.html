@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emlak Portföy Yöneticisi v7 (Final)</title>
+    <title>Emlak Portföy Yöneticisi v9 (Final)</title>
     <style>
         :root {
             --primary: #2c3e50; /* Lacivert */
             --secondary: #34495e;
             --accent: #27ae60; /* Yeşil (Vurgu) */
-            --danger: #c0392b; /* Kırmızı (Silme) */
+            --danger: #c0392b; /* Kırmızı */
             --btn-link: #3498db; /* Mavi (Link Butonu) */
             --light: #ecf0f1;
         }
@@ -92,43 +92,47 @@
             font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* --- ÖNEMLİ: BUTON TASARIMI (v5'ten Geri Geldi) --- */
+        /* --- İLANA GİT BUTONU (Mavi & Geniş) --- */
         .ad-link-btn {
             display: inline-block;
-            background-color: var(--btn-link);
+            background-color: #3498db; /* Parlak Mavi */
             color: white !important;
             text-decoration: none;
-            padding: 8px 15px; /* Geniş Dolgu */
+            padding: 8px 16px; 
             border-radius: 20px;
             margin-top: 8px;
             font-size: 11px;
             font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
             transition: all 0.2s;
-            width: 80%; /* Hücre Genişliği */
+            width: 80%;
             max-width: 140px;
+            text-align: center;
+            line-height: 1.2;
         }
         .ad-link-btn:hover {
-            background-color: #1f6391;
+            background-color: #2980b9;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
-        /* --- VURGULAMALAR (v6 Mantığı) --- */
-        /* Ortak Avantaj Stili */
+        /* --- VURGULAMA (Tek Tip Yeşil) --- */
         .highlight-win {
-            background-color: #e8f8f5 !important; /* Yeşil Zemin */
-            color: #27ae60 !important;
+            background-color: #d1f2eb !important; /* Belirgin Nane Yeşili */
+            color: #009432 !important; /* Koyu Yeşil Yazı */
             font-weight: 800 !important;
-            border: 2px solid #27ae60 !important;
+            border: 2px solid #009432 !important;
             position: relative;
         }
-        .icon-badge { display: block; font-size: 9px; margin-bottom: 2px; text-transform: uppercase; color: #27ae60; }
+        
+        .icon-badge { display: block; font-size: 10px; margin-bottom: 2px; text-transform: uppercase; color: #009432; font-weight: bold; }
 
         @media print {
             body { background: white; padding: 0; }
             .control-panel, .del-col { display: none !important; }
             .report-page { box-shadow: none; margin: 0; width: 100%; max-width: 100%; padding: 5mm; }
+            
+            /* Baskıda link butonu sadeleşsin */
             .ad-link-btn {
                 background: transparent; color: var(--primary) !important;
                 border: 1px solid var(--primary); box-shadow: none; padding: 4px 8px;
@@ -177,7 +181,7 @@
 </div>
 
 <script>
-    const STORAGE_KEY = 'emlak_v7_final';
+    const STORAGE_KEY = 'emlak_v9_final';
     let portfolio = [];
 
     window.onload = () => {
@@ -185,7 +189,7 @@
         if (saved) { portfolio = JSON.parse(saved); updateList(); }
     };
 
-    // --- VERİ EKLEME ---
+    // --- VERİ İŞLEME ---
     function addData() {
         const raw = document.getElementById('jsonInput').value;
         if (!raw.trim()) return alert("Lütfen kod yapıştırın.");
@@ -241,7 +245,7 @@
     function clearAll() { if(confirm("Tümü silinsin mi?")) { portfolio = []; save(); document.getElementById('reportContainer').innerHTML=''; } }
     function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(portfolio)); updateList(); }
 
-    // --- ANALİZ YARDIMCILARI ---
+    // --- ANALİZ ---
     function parseNum(str) {
         if (!str) return 0;
         let s = str.toString().replace(/\./g, '').replace(/,/g, '.');
@@ -257,16 +261,16 @@
         return match ? parseInt(match[0]) : 999;
     }
 
-    // --- RAPOR OLUŞTURMA ---
+    // --- RAPOR MOTORU ---
     function renderReport() {
         const selectedIds = Array.from(document.querySelectorAll('#listArea input:checked')).map(cb => cb.value);
-        if (selectedIds.length === 0) return alert("Listeden seçim yapın.");
+        if (selectedIds.length === 0) return alert("Seçim yapınız.");
 
         const ads = selectedIds.map(i => portfolio[i]);
         const container = document.getElementById('reportContainer');
         container.innerHTML = '';
 
-        // İSTATİSTİK HESAPLA
+        // İSTATİSTİK
         let stats = { minPrice: Infinity, minUnitPrice: Infinity, maxNetM2: 0, minAge: 999 };
 
         ads.forEach(ad => {
@@ -274,8 +278,11 @@
                 let k = key.toLowerCase();
                 let num = parseNum(val);
 
+                // Fiyat
                 if (key === 'Fiyat' && num > 0 && num < stats.minPrice) stats.minPrice = num;
+                // Birim Fiyat
                 else if (k.includes('birim') && num > 0 && num < stats.minUnitPrice) stats.minUnitPrice = num;
+                // m² (Net Hesapla)
                 else if (k.includes('m²') || k.includes('m2') || k.includes('metrekare')) {
                     let net = num;
                     if(val.includes('/')) {
@@ -284,6 +291,7 @@
                     }
                     if(net > stats.maxNetM2) stats.maxNetM2 = net;
                 }
+                // Yaş
                 else if ((k.includes('yaş') || k.includes('bina')) && parseAge(val) < stats.minAge) {
                     stats.minAge = parseAge(val);
                 }
@@ -301,7 +309,7 @@
             let html = `
                 <div style="display:flex; justify-content:space-between; border-bottom:3px solid var(--primary); padding-bottom:10px; margin-bottom:20px;">
                     <div>
-                        <h1 style="margin:0; color:var(--primary); font-size:24px;">GAYRİMENKUL DEĞERLEME RAPORU</h1>
+                        <h1 style="margin:0; color:var(--primary); font-size:24px;">DEĞERLEME RAPORU</h1>
                         <div style="color:#7f8c8d; font-size:12px;">PİYASA ANALİZİ | Sayfa ${p+1}/${totalPages}</div>
                     </div>
                     <div style="text-align:right; font-size:12px;">Tarih: ${new Date().toLocaleDateString('tr-TR')}</div>
@@ -328,7 +336,7 @@
                         let cellClass = '';
                         let badge = '';
 
-                        // RENKLENDİRME
+                        // RENKLENDİRME (Yeşil)
                         if (featName === 'Fiyat' && num === stats.minPrice) {
                             cellClass = 'highlight-win'; badge = '<span class="icon-badge">📉 EN UYGUN</span>';
                         }
@@ -349,16 +357,14 @@
                             cellClass = 'highlight-win'; badge = '<span class="icon-badge">🆕 EN YENİ</span>';
                         }
 
-                        // LİNK BUTONU (ÖNEMLİ DÜZELTME)
+                        // BUTON VE LİNK
                         let content = val;
-                        // İlan No satırını yakala (Key içinde 'ilan no' geçiyorsa)
-                        if (k.includes('ilan no')) {
-                            // Sadece rakamları alarak ID oluştur
-                            let id = val.replace(/[^0-9]/g, ''); 
-                            if(id.length > 5) { // Geçerli bir ID ise butonu bas
+                        if (k.includes('ilan no') && val.includes('#')) {
+                            let cleanId = val.replace(/[^0-9]/g, '');
+                            if(cleanId.length > 5) {
                                 content = `
-                                    <div style="font-weight:bold; color:#555;">${val}</div>
-                                    <a href="https://sahibinden.com/ilan/${id}/detay" target="_blank" class="ad-link-btn">
+                                    <div style="font-weight:bold; color:#555; margin-bottom:5px;">${val}</div>
+                                    <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link-btn">
                                         İlana Git 🔗
                                     </a>
                                 `;
