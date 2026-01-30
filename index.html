@@ -3,180 +3,580 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emlak Asistanı (Mobil)</title>
+    <title>Portföy Yönetim Sistemi (Mobil Uyumlu)</title>
     <style>
         :root {
-            --primary: #2c3e50;
+            --primary: #2c3e50; /* Lacivert */
             --secondary: #34495e;
-            --green: #27ae60;
-            --blue: #3498db;
-            --bg: #f5f6fa;
-        }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
-
-        /* KONTROL PANELİ */
-        .panel { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .btn { padding: 10px 15px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; margin-top: 5px; }
-        .btn-add { background: var(--primary); width: 100%; }
-        .btn-act { background: var(--green); margin-left: 5px; }
-        .btn-del { background: #c0392b; }
-
-        /* LİSTE */
-        .list { margin-top: 15px; max-height: 200px; overflow-y: auto; }
-        .item { background: white; padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-
-        /* RAPOR (MOBİL UYUMLU) */
-        .report-page { background: white; width: 100%; max-width: 297mm; min-height: 190mm; margin: 20px auto; padding: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); box-sizing: border-box; }
-        
-        /* KAYDIRILABİLİR TABLO */
-        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; } /* Mobilde sıkışmasın */
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
-        
-        .sticky-col { position: sticky; left: 0; background: var(--primary); color: white; width: 120px; text-align: left; padding-left: 10px; z-index: 5; }
-        thead th { background: var(--secondary); color: white; height: 40px; }
-
-        /* BUTON TASARIMI */
-        .link-btn {
-            display: inline-block; 
-            background-color: var(--blue); 
-            color: white !important; 
-            text-decoration: none; 
-            padding: 8px 12px; 
-            border-radius: 20px; 
-            font-size: 11px; 
-            font-weight: bold; 
-            margin-top: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            --accent: #27ae60; /* Yeşil */
+            --danger: #c0392b; /* Kırmızı */
+            --light: #ecf0f1;
+            --border: #bdc3c7;
+            --btn-link: #3498db; /* Link Buton Rengi (Mavi) */
         }
 
-        /* VURGULAMA */
-        .win { background-color: #d1f2eb !important; border: 2px solid var(--green) !important; font-weight: bold; color: var(--green); }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
 
-        /* SİLME İKONU */
-        .x-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; }
+        /* --- KONTROL PANELİ --- */
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
+        h2, h3 { margin-top: 0; color: var(--primary); }
+
+        /* JSON Giriş Alanı */
+        .input-area textarea {
+            width: 100%;
+            height: 80px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            margin-bottom: 10px;
+            background: #fafafa;
+            box-sizing: border-box; /* Taşmayı engeller */
+        }
+
+        /* Butonlar */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--secondary); }
+        .btn-success { background: var(--accent); color: white; }
+        .btn-danger { background: var(--danger); color: white; font-size: 11px; padding: 5px 10px; }
+        
+        /* Panel Düzeni (Flex) */
+        .panel-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .panel-col { flex: 1; }
+
+        /* Portföy Listesi */
+        .portfolio-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background: var(--light);
+            border-radius: 6px;
+        }
+
+        .portfolio-item {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .portfolio-item label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            flex-grow: 1;
+            overflow: hidden; /* Uzun metin taşmasın */
+        }
+        .portfolio-item span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* --- RAPOR ALANI --- */
+        .report-section {
+            margin: 0 auto;
+            max-width: 297mm; /* A4 Yatay */
+        }
+
+        .report-page {
+            padding: 20px 40px;
+            background: white;
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            min-height: 190mm;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* Mobil İçin Tablo Kaydırma Alanı */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto; /* Yatay Scroll */
+            -webkit-overflow-scrolling: touch; /* Mobilde akıcı kaydırma */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            /* Mobilde tablo büzüşmesin diye min-width verebiliriz */
+            min-width: 800px; 
+            table-layout: fixed; 
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+
+        .col-feature {
+            width: 140px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            text-align: left;
+            position: sticky; /* Özellik sütunu mobilde kaybolmasın */
+            left: 0;
+            z-index: 5;
+        }
+
+        thead th {
+            background-color: var(--secondary);
+            color: white;
+            height: 50px;
+            position: relative;
+        }
+
+        /* Sütun Silme Butonu (X) */
+        .delete-col-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 24px; /* Mobilde basması kolay olsun diye büyüttük */
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            border: 2px solid white;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* YENİ: Buton Görünümlü Link */
+        .ad-link-btn {
+            display: inline-block;
+            background-color: var(--btn-link);
+            color: white !important;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            width: 80%; /* Hücreye yayılsın */
+            max-width: 150px;
+        }
+        .ad-link-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .ad-link-btn:active {
+            transform: translateY(0);
+        }
+
+        .best-price {
+            background-color: #e8f8f5 !important;
+            color: var(--accent) !important;
+            font-weight: 800;
+            border: 2px solid var(--accent);
+        }
+
+        .page-break {
+            height: 20px;
+            background: #e0e0e0;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: center;
+            line-height: 20px;
+            color: #666;
+            font-size: 10px;
+        }
+
+        /* --- MOBİL UYUMLULUK (Responsive) --- */
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            
+            .control-panel { padding: 15px; }
+            .panel-row { flex-direction: column; gap: 30px; }
+            
+            .report-page {
+                padding: 15px;
+                min-height: auto;
+                width: 100%;
+            }
+
+            /* Mobilde tablo scroll olurken başlık sütunu (sticky) üstte kalsın */
+            .col-feature {
+                box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            }
+            
+            /* Mobilde X butonunu biraz daha içeri alalım ki scrollbar altında kalmasın */
+            .delete-col-btn {
+                right: -5px; top: -12px;
+            }
+        }
+
+        /* --- BASKI AYARLARI --- */
         @media print {
-            .panel, .x-btn { display: none !important; }
-            .report-page { margin: 0; box-shadow: none; width: 100%; }
-            .link-btn { background: none; color: black !important; border: 1px solid black; }
-            .win { background-color: #f0fff4 !important; border: 1px solid black !important; }
-            .table-scroll { overflow: visible; }
-            @page { size: A4 landscape; margin: 5mm; }
+            body { padding: 0; background: white; }
+            .control-panel, .page-break { display: none !important; }
+            .delete-col-btn { display: none !important; }
+            
+            .report-page {
+                box-shadow: none;
+                margin: 0;
+                padding: 10mm;
+                page-break-after: always;
+                width: 100%;
+                max-width: 100%;
+            }
+            .report-page:last-child { page-break-after: auto; }
+            
+            /* Baskıda scroll olmasın, sığsın */
+            .table-wrapper { overflow: visible; width: 100%; }
+            table { min-width: 100%; width: 100%; table-layout: fixed; }
+            
+            /* Baskıda link butonu daha sade görünsün */
+            .ad-link-btn {
+                background-color: transparent;
+                color: var(--primary) !important;
+                border: 1px solid var(--primary);
+                box-shadow: none;
+                padding: 5px 10px;
+            }
+
+            @page { size: A4 landscape; margin: 0; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
 <body>
 
-<div class="panel">
-    <h3>1. Veri Girişi</h3>
-    <textarea id="jsonInput" placeholder="JSON kodunu buraya yapıştır..."></textarea>
-    <button class="btn btn-add" onclick="add()">Listeye Ekle</button>
-    <div id="status" style="color:green; font-size:12px; margin-top:5px;"></div>
-</div>
-
-<div class="panel">
-    <div style="display:flex; justify-content:space-between;">
-        <h3>2. Liste</h3>
-        <button class="btn btn-del" onclick="clearAll()">Temizle</button>
-    </div>
-    <div id="list" class="list"></div>
-    <div style="margin-top:15px; text-align:right;">
-        <button class="btn btn-act" onclick="render()">Raporla</button>
-        <button class="btn btn-act" style="background:#2980b9;" onclick="window.print()">Yazdır</button>
-    </div>
-</div>
-
-<div id="output"></div>
-
-<script>
-    let db = [];
-    const KEY = 'emlak_mobil_v1';
-
-    window.onload = () => {
-        let s = localStorage.getItem(KEY);
-        if(s) { db = JSON.parse(s); list(); }
-    }
-
-    // SAYI TEMİZLEME
-    function num(v) {
-        if(!v) return 0;
-        let s = v.toString().replace(/\./g,'').replace(/,/g,'.');
-        let m = s.match(/[0-9.]+/);
-        return m ? parseFloat(m[0]) : 0;
-    }
-
-    // YAŞ TEMİZLEME
-    function age(v) {
-        if(!v) return 999;
-        let s = v.toString().toLowerCase();
-        if(s.includes('sıfır')||s.includes('yeni')||s.includes('0')) return 0;
-        let m = s.match(/\d+/);
-        return m ? parseInt(m[0]) : 999;
-    }
-
-    function add() {
-        try {
-            let d = JSON.parse(document.getElementById('jsonInput').value);
-            Object.keys(d.basliklar).forEach(k => {
-                let item = { t: d.basliklar[k], f: {} };
-                d.satirlar.forEach(r => { item.f[r.ozellik.trim()] = r[k] || '-'; });
-                db.push(item);
-            });
-            save();
-            document.getElementById('jsonInput').value='';
-            document.getElementById('status').innerText = "Eklendi.";
-        } catch(e) { alert("JSON Hatası"); }
-    }
-
-    function list() {
-        let el = document.getElementById('list'); el.innerHTML='';
-        db.forEach((i,x) => {
-            el.innerHTML += `<div class="item"><label><input type="checkbox" value="${x}" checked> ${i.t}</label> <span onclick="del(${x})" style="color:red;cursor:pointer;">Sil</span></div>`;
-        });
-    }
-
-    function del(x) { db.splice(x,1); save(); }
-    function clearAll() { if(confirm("Sil?")){ db=[]; save(); document.getElementById('output').innerHTML=''; } }
-    function save() { localStorage.setItem(KEY, JSON.stringify(db)); list(); }
-
-    function render() {
-        let sel = Array.from(document.querySelectorAll('#list input:checked')).map(c => db[c.value]);
-        if(sel.length===0) return alert("Seçim yap.");
-
-        // ANALİZ
-        let minPrice=Infinity, minUnit=Infinity, maxNet=0, minAge=999;
-        sel.forEach(i => {
-            for(let [k,v] of Object.entries(i.f)) {
-                let key = k.toLowerCase();
-                let n = num(v);
-                
-                if(k==='Fiyat' && n>0 && n<minPrice) minPrice=n;
-                if(key.includes('birim') && n>0 && n<minUnit) minUnit=n;
-                if((key.includes('m²')||key.includes('metrekare'))) {
-                    let net = n;
-                    if(v.includes('/')) { let r=num(v.split('/')[1]); if(r>0) net=r; }
-                    if(net>maxNet) maxNet=net;
-                }
-                if((key.includes('yaş')||key.includes('bina')) && age(v)<minAge) minAge=age(v);
-            }
-        });
-
-        // ÇİZİM
-        let out = document.getElementById('output'); out.innerHTML='';
-        let perPage = 6;
-        let pages = Math.ceil(sel.length/perPage);
-
-        for(let p=0; p<pages; p++) {
-            let batch = sel.slice(p*perPage, (p+1)*perPage);
-            let h = `<div class="report-page">
-                <div style="border-bottom:2px solid #333; margin-bottom:10px; padding-bottom:5px;">
-                    <h2 style="margin:0;">DEĞERLEME RAPORU</h2>
-                    <small>Sayfa ${p+1}/${pages} - ${new Date().toLocaleDateString('tr-TR')}</small>
+    <div class="control-panel">
+        <div class="panel-row">
+            <div class="panel-col">
+                <h3>1. Veri Girişi (JSON)</h3>
+                <div class="input-area">
+                    <textarea id="jsonInput" placeholder="Sohbetten aldığınız JSON kodunu buraya yapıştırın..."></textarea>
+                    <div style="margin-top:5px;">
+                        <button class="btn btn-primary" onclick="jsonHavuzaEkle()">📥 Havuza Ekle</button>
+                        <span id="statusMsg" style="font-size:12px; margin-left:10px; color:green;"></span>
+                    </div>
                 </div>
-                <div class="table-scroll">
-                <table><thead><tr><th class="sticky-col">ÖZELLİKLER</th>`;
-            
-            batch.forEach(b => h+=`<th style="position:relative;">${b.t} <div class="x-btn" onclick="remCol(this)">✕</div></th>`);
+            </div>
+
+            <div class="panel-col">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>2. Portföyüm</h3>
+                    <button class="btn btn-danger" onclick="havuzuTemizle()">Tümünü Sil</button>
+                </div>
+                
+                <div id="portfolioList" class="portfolio-list">
+                    <div style="color:#999; font-size:12px; padding:10px;">Liste boş.</div>
+                </div>
+
+                <div style="margin-top:15px; display:flex; justify-content:flex-end; gap:10px;">
+                    <button class="btn btn-success" onclick="raporuOlustur()">📊 Seçilenleri Raporla</button>
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ PDF İndir</button>
+                </div>
+                <div style="margin-top:10px; text-align:right; font-size:11px; color:#666;">
+                    * Tabloda sütun başındaki (X) ile gizleme yapabilirsiniz.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reportContainer" class="report-section">
+        <div style="text-align:center; padding:50px; color:#999; border: 2px dashed #ddd; border-radius: 10px;">
+            <h3>Rapor Alanı</h3>
+            <p>Yukarıdan ilanları seçip "Seçilenleri Raporla" butonuna basınız.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- DEĞİŞKENLER VE BAŞLANGIÇ ---
+        let globalPortfolio = []; 
+        const STORAGE_KEY = 'emlak_portfoyu_v2_mobil';
+
+        window.onload = function() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                globalPortfolio = JSON.parse(savedData);
+                renderPortfolioList();
+            }
+        };
+
+        // --- 1. VERİ EKLEME ---
+        function jsonHavuzaEkle() {
+            const rawJson = document.getElementById('jsonInput').value;
+            if (!rawJson.trim()) { alert("Lütfen JSON kodu yapıştırın."); return; }
+
+            try {
+                const data = JSON.parse(rawJson);
+                const keys = Object.keys(data.basliklar); 
+                
+                let addedCount = 0;
+                keys.forEach(key => {
+                    const uniqueId = 'ad_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                    let newAd = {
+                        id: uniqueId,
+                        baslik: data.basliklar[key],
+                        ozellikler: {}
+                    };
+
+                    data.satirlar.forEach(row => {
+                        newAd.ozellikler[row.ozellik] = row[key] || '-';
+                    });
+
+                    globalPortfolio.push(newAd);
+                    addedCount++;
+                });
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(globalPortfolio));
+                
+                document.getElementById('jsonInput').value = '';
+                document.getElementById('statusMsg').textContent = `+${addedCount} İlan Eklendi`;
+                setTimeout(() => document.getElementById('statusMsg').textContent = '', 3000);
+                renderPortfolioList();
+
+            } catch (e) {
+                console.error(e);
+                alert("Hatalı JSON formatı! Kodu tam kopyaladığınızdan emin olun.");
+            }
+        }
+
+        // --- 2. LİSTELEME ---
+        function renderPortfolioList() {
+            const listEl = document.getElementById('portfolioList');
+            listEl.innerHTML = '';
+
+            if (globalPortfolio.length === 0) {
+                listEl.innerHTML = '<div style="color:#999; padding:10px;">Liste boş.</div>';
+                return;
+            }
+
+            globalPortfolio.forEach((ilan, index) => {
+                const item = document.createElement('div');
+                item.className = 'portfolio-item';
+                
+                // İlan Fiyatı (Varsa parantez içinde göster)
+                let fiyat = ilan.ozellikler['Fiyat'] || '';
+                if(fiyat) fiyat = `(${fiyat})`;
+
+                item.innerHTML = `
+                    <label>
+                        <input type="checkbox" value="${index}" checked>
+                        <span><b>${ilan.baslik}</b> <span style="font-weight:normal; color:#666; font-size:11px;">${fiyat}</span></span>
+                    </label>
+                    <button class="btn btn-danger" onclick="ilaniSil(${index})">Sil</button>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function ilaniSil(index) {
+            globalPortfolio.splice(index, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(globalPortfolio));
+            renderPortfolioList();
+        }
+
+        function havuzuTemizle() {
+            if(confirm('DİKKAT: Kayıtlı tüm ilanlar silinecek. Onaylıyor musunuz?')) {
+                globalPortfolio = [];
+                localStorage.removeItem(STORAGE_KEY);
+                renderPortfolioList();
+                document.getElementById('reportContainer').innerHTML = '';
+            }
+        }
+
+        // --- 3. RAPOR OLUŞTURMA (MOBİL UYUMLU) ---
+        function raporuOlustur() {
+            const checkboxes = document.querySelectorAll('#portfolioList input[type="checkbox"]:checked');
+            if (checkboxes.length === 0) {
+                alert("Lütfen en az bir ilan seçin.");
+                return;
+            }
+
+            const selectedAds = [];
+            checkboxes.forEach(cb => { selectedAds.push(globalPortfolio[cb.value]); });
+            const globalBestPrices = calculateBestPrices(selectedAds);
+            const container = document.getElementById('reportContainer');
+            container.innerHTML = '';
+
+            const ADS_PER_PAGE = 6;
+            const totalPages = Math.ceil(selectedAds.length / ADS_PER_PAGE);
+
+            for (let page = 0; page < totalPages; page++) {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'report-page';
+                
+                const date = new Date().toLocaleDateString('tr-TR');
+                pageDiv.innerHTML = `
+                    <div style="border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap;">
+                        <div>
+                            <h1 style="margin:0; font-size:24px; color:var(--primary);">DEĞERLEME RAPORU</h1>
+                            <div style="color:#7f8c8d; font-size:12px; margin-top:5px;">PİYASA ANALİZİ | Sayfa ${page + 1} / ${totalPages}</div>
+                        </div>
+                        <div style="text-align:right; font-size:12px; color:#666; margin-top:10px;">Tarih: ${date}</div>
+                    </div>
+                `;
+
+                // Scroll Wrapper (Mobil için)
+                const tableWrapper = document.createElement('div');
+                tableWrapper.className = 'table-wrapper';
+
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+
+                const startIdx = page * ADS_PER_PAGE;
+                const endIdx = startIdx + ADS_PER_PAGE;
+                const pageAds = selectedAds.slice(startIdx, endIdx);
+
+                // BAŞLIKLAR
+                const trHead = document.createElement('tr');
+                const thFeature = document.createElement('th');
+                thFeature.className = 'col-feature';
+                thFeature.textContent = 'ÖZELLİKLER';
+                trHead.appendChild(thFeature);
+
+                pageAds.forEach(ilan => {
+                    const th = document.createElement('th');
+                    th.innerHTML = `
+                        ${ilan.baslik}
+                        <div class="delete-col-btn" onclick="sutunuKaldir(this)" title="Gizle">✕</div>
+                    `;
+                    trHead.appendChild(th);
+                });
+                thead.appendChild(trHead);
+                table.appendChild(thead);
+
+                // GÖVDE
+                if(pageAds.length > 0) {
+                    const featureList = Object.keys(pageAds[0].ozellikler);
+                    featureList.forEach(featKey => {
+                        const tr = document.createElement('tr');
+                        
+                        const tdLabel = document.createElement('td');
+                        tdLabel.className = 'col-feature';
+                        tdLabel.textContent = featKey;
+                        tr.appendChild(tdLabel);
+
+                        pageAds.forEach(ilan => {
+                            const td = document.createElement('td');
+                            let content = ilan.ozellikler[featKey];
+                            
+                            // LINK BUTONU (GÜNCELLEME)
+                            if (featKey === "İlan No" && content.includes("#")) {
+                                const cleanId = content.replace('#', '').trim();
+                                td.innerHTML = `
+                                    <div style="font-weight:bold; margin-bottom:5px;">${content}</div>
+                                    <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link-btn">
+                                        İlana Git 🔗
+                                    </a>
+                                `;
+                            } else {
+                                td.textContent = content;
+                            }
+
+                            // VURGULAMA
+                            if ((featKey === 'Fiyat' || featKey.includes('Birim')) && 
+                                globalBestPrices[featKey] === parseFloat(content.replace(/\./g,'').replace(/[^0-9.]/g,''))) {
+                                 td.classList.add('best-price');
+                            }
+
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                table.appendChild(tbody);
+                tableWrapper.appendChild(table);
+                pageDiv.appendChild(tableWrapper);
+                container.appendChild(pageDiv);
+
+                if (page < totalPages - 1) {
+                    const separator = document.createElement('div');
+                    separator.className = 'page-break';
+                    separator.textContent = '--- Sayfa Sonu ---';
+                    container.appendChild(separator);
+                }
+            }
+        }
+
+        function calculateBestPrices(ads) {
+            let bests = {}; 
+            const keysToCheck = ['Fiyat', 'Birim Fiyat (Net m²)'];
+            keysToCheck.forEach(key => {
+                let minVal = Infinity;
+                ads.forEach(ad => {
+                    if (ad.ozellikler[key]) {
+                        let val = parseFloat(ad.ozellikler[key].replace(/\./g, '').replace(/[^0-9.]/g, ''));
+                        if (!isNaN(val) && val > 0 && val < minVal) minVal = val;
+                    }
+                });
+                if (minVal !== Infinity) bests[key] = minVal;
+            });
+            return bests;
+        }
+
+        function sutunuKaldir(btn) {
+            const th = btn.parentElement;
+            const cellIndex = th.cellIndex;
+            const table = th.closest('table');
+            const rows = table.rows;
+            for (let i = 0; i < rows.length; i++) {
+                if (rows[i].cells.length > cellIndex) {
+                    rows[i].deleteCell(cellIndex);
+                }
+            }
+            if (table.rows[0].cells.length === 1) {
+               table.closest('.report-page').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
