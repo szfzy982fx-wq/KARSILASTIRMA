@@ -3,169 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emlak Portföy (Final Sürüm)</title>
+    <title>Emlak Asistanı (Mobil)</title>
     <style>
         :root {
             --primary: #2c3e50;
             --secondary: #34495e;
-            --green: #27ae60; /* Vurgu Rengi */
-            --blue: #3498db; /* Buton Rengi */
-            --danger: #c0392b;
-            --light: #ecf0f1;
+            --green: #27ae60;
+            --blue: #3498db;
+            --bg: #f5f6fa;
         }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f6fa;
-            margin: 0; padding: 20px; color: #333;
-        }
+        /* KONTROL PANELİ */
+        .panel { background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn { padding: 10px 15px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; margin-top: 5px; }
+        .btn-add { background: var(--primary); width: 100%; }
+        .btn-act { background: var(--green); margin-left: 5px; }
+        .btn-del { background: #c0392b; }
 
-        /* --- PANEL --- */
-        .control-panel {
-            background: white; padding: 20px; border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;
-            max-width: 1200px; margin: 0 auto 20px auto;
-        }
+        /* LİSTE */
+        .list { margin-top: 15px; max-height: 200px; overflow-y: auto; }
+        .item { background: white; padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
 
-        .input-group textarea {
-            width: 100%; height: 80px; border: 1px solid #bdc3c7;
-            border-radius: 4px; padding: 10px; font-family: monospace; font-size: 11px;
-            background: #fafafa; box-sizing: border-box;
-        }
-
-        .btn {
-            padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;
-            font-weight: 600; font-size: 13px; color: white; margin-right: 5px;
-        }
-        .btn-add { background: var(--primary); }
-        .btn-report { background: var(--green); }
-        .btn-clear { background: var(--danger); }
-        .btn-print { background: var(--blue); }
-
-        .list-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto;
-            padding: 10px; background: var(--light); border-radius: 6px;
-        }
-        .list-item {
-            background: white; padding: 10px; border: 1px solid #ddd;
-            display: flex; justify-content: space-between; align-items: center; border-radius: 4px;
-        }
-
-        /* --- RAPOR --- */
-        .report-page {
-            background: white; width: 100%; max-width: 297mm; min-height: 190mm;
-            margin: 0 auto 30px auto; padding: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            box-sizing: border-box;
-        }
+        /* RAPOR (MOBİL UYUMLU) */
+        .report-page { background: white; width: 100%; max-width: 297mm; min-height: 190mm; margin: 20px auto; padding: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.05); box-sizing: border-box; }
         
-        .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        /* KAYDIRILABİLİR TABLO */
+        .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 800px; table-layout: fixed; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: center; vertical-align: middle; word-wrap: break-word; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; } /* Mobilde sıkışmasın */
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; vertical-align: middle; }
+        
+        .sticky-col { position: sticky; left: 0; background: var(--primary); color: white; width: 120px; text-align: left; padding-left: 10px; z-index: 5; }
+        thead th { background: var(--secondary); color: white; height: 40px; }
 
-        .col-head {
-            background: var(--primary); color: white; font-weight: bold; width: 150px;
-            text-align: left; padding-left: 15px; position: sticky; left: 0; z-index: 5;
-        }
-        thead th { background: var(--secondary); color: white; height: 50px; position: relative; }
-
-        /* SİLME BUTONU */
-        .del-col {
-            position: absolute; top: -8px; right: -8px; background: var(--danger);
-            color: white; width: 20px; height: 20px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            font-size: 12px; border: 2px solid white; z-index: 10;
-        }
-
-        /* --- İŞTE BU: SEVDİĞİNİZ MAVİ BUTON --- */
-        .ad-link-btn {
-            display: inline-block;
-            background-color: var(--blue); /* Parlak Mavi */
-            color: white !important;
-            text-decoration: none;
-            padding: 8px 15px; 
-            border-radius: 20px;
-            margin-top: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.15);
-            transition: transform 0.2s;
-            width: 80%;
-            max-width: 140px;
-        }
-        .ad-link-btn:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
+        /* BUTON TASARIMI */
+        .link-btn {
+            display: inline-block; 
+            background-color: var(--blue); 
+            color: white !important; 
+            text-decoration: none; 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            margin-top: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* --- VURGULAMA (SADECE YEŞİL) --- */
-        .winner {
-            background-color: #d1f2eb !important; /* Yeşil Zemin */
-            color: #009432 !important; /* Yeşil Yazı */
-            font-weight: 800 !important;
-            border: 2px solid #009432 !important;
-            position: relative;
-        }
-        .badge { display: block; font-size: 9px; color: #009432; font-weight: 900; margin-bottom: 3px; }
+        /* VURGULAMA */
+        .win { background-color: #d1f2eb !important; border: 2px solid var(--green) !important; font-weight: bold; color: var(--green); }
+
+        /* SİLME İKONU */
+        .x-btn { position: absolute; top: -5px; right: -5px; background: red; color: white; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; }
 
         @media print {
-            .control-panel, .del-col { display: none !important; }
-            .report-page { margin: 0; box-shadow: none; padding: 10mm; width: 100%; }
-            .ad-link-btn { background: transparent; color: var(--primary) !important; border: 1px solid var(--primary); box-shadow: none; padding: 5px; }
-            .winner { background-color: #f0fff4 !important; border-width: 1px; }
-            @page { size: A4 landscape; margin: 0; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .panel, .x-btn { display: none !important; }
+            .report-page { margin: 0; box-shadow: none; width: 100%; }
+            .link-btn { background: none; color: black !important; border: 1px solid black; }
+            .win { background-color: #f0fff4 !important; border: 1px solid black !important; }
+            .table-scroll { overflow: visible; }
+            @page { size: A4 landscape; margin: 5mm; }
         }
     </style>
 </head>
 <body>
 
-<div class="control-panel">
-    <div style="display:flex; gap:20px; flex-wrap:wrap;">
-        <div style="flex:1; min-width:300px;">
-            <h3>1. Veri Girişi</h3>
-            <div class="input-group">
-                <textarea id="jsonInput" placeholder="JSON kodunu buraya yapıştırın..."></textarea>
-                <div style="margin-top:10px;">
-                    <button class="btn btn-add" onclick="add()">📥 Ekle</button>
-                    <span id="msg" style="color:green; font-size:12px; font-weight:bold;"></span>
-                </div>
-            </div>
-        </div>
-        <div style="flex:1; min-width:300px;">
-            <div style="display:flex; justify-content:space-between;"><h3>2. Liste</h3><button class="btn btn-clear" onclick="clearAll()">Temizle</button></div>
-            <div id="list" class="list-grid"><div style="color:#999; padding:10px; font-size:12px;">Liste boş.</div></div>
-            <div style="margin-top:20px; text-align:right;">
-                <button class="btn btn-report" onclick="render()">📊 Raporla</button>
-                <button class="btn btn-print" onclick="window.print()">🖨️ PDF İndir</button>
-            </div>
-        </div>
+<div class="panel">
+    <h3>1. Veri Girişi</h3>
+    <textarea id="jsonInput" placeholder="JSON kodunu buraya yapıştır..."></textarea>
+    <button class="btn btn-add" onclick="add()">Listeye Ekle</button>
+    <div id="status" style="color:green; font-size:12px; margin-top:5px;"></div>
+</div>
+
+<div class="panel">
+    <div style="display:flex; justify-content:space-between;">
+        <h3>2. Liste</h3>
+        <button class="btn btn-del" onclick="clearAll()">Temizle</button>
+    </div>
+    <div id="list" class="list"></div>
+    <div style="margin-top:15px; text-align:right;">
+        <button class="btn btn-act" onclick="render()">Raporla</button>
+        <button class="btn btn-act" style="background:#2980b9;" onclick="window.print()">Yazdır</button>
     </div>
 </div>
 
-<div id="reportContainer">
-    <div style="text-align:center; padding:50px; color:#999; border: 2px dashed #ddd; margin: 20px auto; max-width: 800px;">Rapor bekleniyor...</div>
-</div>
+<div id="output"></div>
 
 <script>
-    const KEY = 'emlak_final_fix';
-    let ads = [];
+    let db = [];
+    const KEY = 'emlak_mobil_v1';
 
     window.onload = () => {
         let s = localStorage.getItem(KEY);
-        if(s) { ads = JSON.parse(s); list(); }
+        if(s) { db = JSON.parse(s); list(); }
     }
 
-    // --- PARSER ---
-    function getNum(v) {
+    // SAYI TEMİZLEME
+    function num(v) {
         if(!v) return 0;
         let s = v.toString().replace(/\./g,'').replace(/,/g,'.');
         let m = s.match(/[0-9.]+/);
         return m ? parseFloat(m[0]) : 0;
     }
-    
-    function getAge(v) {
+
+    // YAŞ TEMİZLEME
+    function age(v) {
         if(!v) return 999;
         let s = v.toString().toLowerCase();
         if(s.includes('sıfır')||s.includes('yeni')||s.includes('0')) return 0;
@@ -173,129 +117,66 @@
         return m ? parseInt(m[0]) : 999;
     }
 
-    // --- EKLEME ---
     function add() {
         try {
-            const data = JSON.parse(document.getElementById('jsonInput').value);
-            Object.keys(data.basliklar).forEach(k => {
-                let item = { title: data.basliklar[k], feats: {} };
-                data.satirlar.forEach(r => { item.feats[r.ozellik.trim()] = r[k] || '-'; });
-                ads.push(item);
+            let d = JSON.parse(document.getElementById('jsonInput').value);
+            Object.keys(d.basliklar).forEach(k => {
+                let item = { t: d.basliklar[k], f: {} };
+                d.satirlar.forEach(r => { item.f[r.ozellik.trim()] = r[k] || '-'; });
+                db.push(item);
             });
             save();
             document.getElementById('jsonInput').value='';
-            document.getElementById('msg').innerText = "Eklendi!";
-            setTimeout(()=>document.getElementById('msg').innerText='',2000);
+            document.getElementById('status').innerText = "Eklendi.";
         } catch(e) { alert("JSON Hatası"); }
     }
 
     function list() {
-        const d = document.getElementById('list'); d.innerHTML='';
-        ads.forEach((a,i) => {
-            let price = a.feats['Fiyat'] || '';
-            d.innerHTML += `<div class="list-item"><label><input type="checkbox" value="${i}" checked> <b>${a.title}</b> <small>(${price})</small></label><button onclick="del(${i})" style="color:red;border:none;background:none;cursor:pointer;">✕</button></div>`;
+        let el = document.getElementById('list'); el.innerHTML='';
+        db.forEach((i,x) => {
+            el.innerHTML += `<div class="item"><label><input type="checkbox" value="${x}" checked> ${i.t}</label> <span onclick="del(${x})" style="color:red;cursor:pointer;">Sil</span></div>`;
         });
     }
 
-    function del(i) { ads.splice(i,1); save(); }
-    function clearAll() { if(confirm("Silinsin mi?")){ ads=[]; save(); document.getElementById('reportContainer').innerHTML=''; } }
-    function save() { localStorage.setItem(KEY, JSON.stringify(ads)); list(); }
+    function del(x) { db.splice(x,1); save(); }
+    function clearAll() { if(confirm("Sil?")){ db=[]; save(); document.getElementById('output').innerHTML=''; } }
+    function save() { localStorage.setItem(KEY, JSON.stringify(db)); list(); }
 
-    // --- RAPOR ---
     function render() {
-        const sel = Array.from(document.querySelectorAll('#list input:checked')).map(cb=>ads[cb.value]);
-        if(sel.length===0) return alert("Seçim yapın");
+        let sel = Array.from(document.querySelectorAll('#list input:checked')).map(c => db[c.value]);
+        if(sel.length===0) return alert("Seçim yap.");
 
-        // 1. ANALİZ
-        let stats = { minPrice: Infinity, minUnit: Infinity, maxNet: 0, minAge: 999 };
-
-        sel.forEach(ad => {
-            for(let [k,v] of Object.entries(ad.feats)) {
+        // ANALİZ
+        let minPrice=Infinity, minUnit=Infinity, maxNet=0, minAge=999;
+        sel.forEach(i => {
+            for(let [k,v] of Object.entries(i.f)) {
                 let key = k.toLowerCase();
-                let num = getNum(v);
-
-                if(k==='Fiyat' && num>0 && num<stats.minPrice) stats.minPrice = num;
-                if(key.includes('birim') && num>0 && num<stats.minUnit) stats.minUnit = num;
-                if((key.includes('m²')||key.includes('metrekare')) && (key.includes('brüt') || key.includes('net') || key.includes('m2'))) {
-                     // Net'i bul (Slash sağı)
-                     let net = num;
-                     if(v.includes('/')) {
-                         let parts = v.split('/');
-                         let right = getNum(parts[1]);
-                         if(right>0) net = right;
-                     }
-                     if(net > stats.maxNet) stats.maxNet = net;
+                let n = num(v);
+                
+                if(k==='Fiyat' && n>0 && n<minPrice) minPrice=n;
+                if(key.includes('birim') && n>0 && n<minUnit) minUnit=n;
+                if((key.includes('m²')||key.includes('metrekare'))) {
+                    let net = n;
+                    if(v.includes('/')) { let r=num(v.split('/')[1]); if(r>0) net=r; }
+                    if(net>maxNet) maxNet=net;
                 }
-                if((key.includes('yaş')||key.includes('bina')) && getAge(v)<stats.minAge) stats.minAge = getAge(v);
+                if((key.includes('yaş')||key.includes('bina')) && age(v)<minAge) minAge=age(v);
             }
         });
 
-        const con = document.getElementById('reportContainer'); con.innerHTML='';
-        const perPage=6;
-        const totalP = Math.ceil(sel.length/perPage);
+        // ÇİZİM
+        let out = document.getElementById('output'); out.innerHTML='';
+        let perPage = 6;
+        let pages = Math.ceil(sel.length/perPage);
 
-        for(let p=0; p<totalP; p++) {
-            const batch = sel.slice(p*perPage, (p+1)*perPage);
+        for(let p=0; p<pages; p++) {
+            let batch = sel.slice(p*perPage, (p+1)*perPage);
             let h = `<div class="report-page">
-                <div style="display:flex; justify-content:space-between; border-bottom:3px solid var(--primary); padding-bottom:10px; margin-bottom:20px;">
-                    <div>
-                        <h1 style="margin:0; color:var(--primary);">DEĞERLEME RAPORU</h1>
-                        <div style="font-size:12px; color:#666;">Sayfa ${p+1}/${totalP}</div>
-                    </div>
-                    <div style="font-size:12px;">${new Date().toLocaleDateString('tr-TR')}</div>
+                <div style="border-bottom:2px solid #333; margin-bottom:10px; padding-bottom:5px;">
+                    <h2 style="margin:0;">DEĞERLEME RAPORU</h2>
+                    <small>Sayfa ${p+1}/${pages} - ${new Date().toLocaleDateString('tr-TR')}</small>
                 </div>
-                <div class="table-wrap">
-                <table><thead><tr><th class="col-head">ÖZELLİKLER</th>`;
+                <div class="table-scroll">
+                <table><thead><tr><th class="sticky-col">ÖZELLİKLER</th>`;
             
-            batch.forEach(ad => h+=`<th>${ad.title} <div class="del-col" onclick="remCol(this)">✕</div></th>`);
-            h+=`</tr></thead><tbody>`;
-
-            if(batch.length>0) {
-                Object.keys(batch[0].feats).forEach(feat => {
-                    h+=`<tr><td class="col-head">${feat}</td>`;
-                    batch.forEach(ad => {
-                        let val = ad.feats[feat];
-                        let key = feat.toLowerCase();
-                        let num = getNum(val);
-                        let cls = ''; let badge = '';
-
-                        // --- RENKLENDİRME (HEPSİ YEŞİL) ---
-                        if(feat==='Fiyat' && num===stats.minPrice) { cls='winner'; badge='<span class="badge">📉 EN UYGUN</span>'; }
-                        else if(key.includes('birim') && num===stats.minUnit) { cls='winner'; badge='<span class="badge">💎 FIRSAT</span>'; }
-                        else if((key.includes('m²')||key.includes('metrekare'))) {
-                            let net = num;
-                            if(val.includes('/')) { let r=getNum(val.split('/')[1]); if(r>0) net=r; }
-                            if(net===stats.maxNet && net>0) { cls='winner'; badge='<span class="badge">📐 EN GENİŞ</span>'; }
-                        }
-                        else if((key.includes('yaş')||key.includes('bina')) && getAge(val)===stats.minAge) { cls='winner'; badge='<span class="badge">🆕 EN YENİ</span>'; }
-
-                        // --- BUTON ---
-                        let content = val;
-                        // İlan No satırıysa
-                        if(key.includes('ilan no')) {
-                            let cleanId = val.replace(/[^0-9]/g,'');
-                            content = `<div style="font-weight:bold; color:#555;">${val}</div>`;
-                            // Eğer geçerli bir ID varsa butonu ekle
-                            if(cleanId.length > 5) {
-                                content += `<a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link-btn">İlana Git 🔗</a>`;
-                            }
-                        }
-
-                        h+=`<td class="${cls}">${badge}${content}</td>`;
-                    });
-                    h+=`</tr>`;
-                });
-            }
-            h+=`</tbody></table></div></div>`;
-            con.innerHTML += h;
-        }
-    }
-
-    function remCol(btn) {
-        let idx = btn.parentElement.cellIndex;
-        let tbl = btn.closest('table');
-        Array.from(tbl.rows).forEach(r => r.deleteCell(idx));
-    }
-</script>
-</body>
-</html>
+            batch.forEach(b => h+=`<th style="position:relative;">${b.t} <div class="x-btn" onclick="remCol(this)">✕</div></th>`);
