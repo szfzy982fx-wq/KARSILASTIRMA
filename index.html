@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -15,6 +16,7 @@
             --danger: #c0392b; 
             --light: #ecf0f1;
             --border: #bdc3c7;
+            --btn-link: #3498db; /* Buton Mavisi */
         }
 
         body {
@@ -95,7 +97,7 @@
             flex-grow: 1;
         }
 
-        /* --- RAPOR ALANI (Dikey ve Ferah Format) --- */
+        /* --- RAPOR ALANI (Tek Sayfaya Sığacak Şekilde Optimize Edildi) --- */
         .report-section {
             background: transparent;
             margin: 0 auto;
@@ -103,12 +105,11 @@
         }
 
         .report-page {
-            padding: 30px;
+            padding: 20px; /* 30px'ten 20px'e düşürüldü (sayfa taşımasını önlemek için) */
             background: white;
             margin-bottom: 30px;
             box-shadow: 0 0 15px rgba(0,0,0,0.05);
             position: relative;
-            /* PDF kütüphanesinin sayfaları ayırması için kritik css: */
             page-break-after: always;
         }
 
@@ -124,37 +125,37 @@
             letter-spacing: 2px;
         }
 
-        /* --- TABLO TASARIMI (Okunabilirlik Artırıldı) --- */
+        /* --- TABLO TASARIMI --- */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px; /* Yazı boyutu büyütüldü */
+            font-size: 13px; /* Optimizasyon için 14px'ten 13px'e düşürüldü */
             table-layout: fixed; 
         }
 
         th, td {
             border: 1px solid #ccc;
-            padding: 15px 10px; /* Satır aralıkları ferahlatıldı */
+            padding: 10px 8px; /* Satır aralıkları tek sayfaya sığması için daraltıldı */
             text-align: center;
             vertical-align: middle;
             word-wrap: break-word;
         }
 
         .col-feature {
-            width: 130px;
+            width: 120px;
             background-color: var(--primary);
             color: white;
             font-weight: bold;
             text-align: left;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         thead th {
             background-color: var(--secondary);
             color: white;
-            height: 60px; /* Başlık alanı genişletildi */
+            height: 45px; /* Başlık yüksekliği daraltıldı */
             position: relative;
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .delete-col-btn {
@@ -187,21 +188,30 @@
             position: absolute;
             top: 2px;
             right: 4px;
-            font-size: 16px;
+            font-size: 14px;
             color: var(--accent);
         }
         
-        /* Müşterinin rahatça tıklayabileceği belirgin link */
+        /* --- YENİ DOKUNMATİK BUTON TASARIMI --- */
         .ad-link {
-            text-decoration: underline;
-            color: #2980b9;
+            text-decoration: none !important;
+            color: white !important;
+            background-color: var(--btn-link);
             font-weight: bold;
-            display: block;
-            margin-top: 5px;
+            display: inline-block;
             font-size: 12px;
+            padding: 8px 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            transition: 0.2s;
+            width: 80%;
+            max-width: 120px;
+        }
+        .ad-link:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
         }
 
-        /* Klasik yazdırma menüsü engellendi (Çünkü kendi PDF motorumuzu kullanıyoruz) */
         @media print {
             body::before {
                 content: "Lütfen yazdır menüsü yerine 'PDF İndir' butonunu kullanın!";
@@ -255,7 +265,7 @@
 
     <script>
         let globalPortfolio = []; 
-        const STORAGE_KEY = 'emlak_portfoyu_v5';
+        const STORAGE_KEY = 'emlak_portfoyu_v6';
 
         window.onload = function() {
             const savedData = localStorage.getItem(STORAGE_KEY);
@@ -358,7 +368,6 @@
             const container = document.getElementById('reportContainer');
             container.innerHTML = '';
 
-            // YENİ: Sayfa başına 3 ilan
             const ADS_PER_PAGE = 3; 
             const totalPages = Math.ceil(selectedAds.length / ADS_PER_PAGE);
 
@@ -368,7 +377,7 @@
                 
                 const date = new Date().toLocaleDateString('tr-TR');
                 pageDiv.innerHTML = `
-                    <div style="border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:end;">
+                    <div style="border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 15px; display:flex; justify-content:space-between; align-items:end;">
                         <div>
                             <h1 style="margin:0; font-size:20px; color:var(--primary);">GAYRİMENKUL DEĞERLEME RAPORU</h1>
                             <div style="color:#7f8c8d; font-size:12px; margin-top:5px;">KARŞILAŞTIRMALI PİYASA ANALİZİ | Sayfa ${page + 1} / ${totalPages}</div>
@@ -416,19 +425,21 @@
                     
                     const tdLabel = document.createElement('td');
                     tdLabel.className = 'col-feature';
-                    tdLabel.textContent = featKey;
+                    
+                    // YENİ: Başlıkta "İlan No" yazıyorsa onu "WEB LİNK" olarak değiştir
+                    tdLabel.textContent = featKey === "İlan No" ? "WEB LİNK" : featKey;
+                    
                     tr.appendChild(tdLabel);
 
                     pageAds.forEach(ilan => {
                         const td = document.createElement('td');
                         let content = ilan.ozellikler[featKey] || '-';
                         
-                        // İlan No Linkleme
+                        // YENİ: İlan Numarasını gizle, sadece Butonu göster
                         if (featKey === "İlan No" && content.includes("#")) {
                             const cleanId = content.replace('#', '').trim();
                             td.innerHTML = `
-                                <div>${content}</div>
-                                <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link">İlana Git 🔗</a>
+                                <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link">İlana Git 👆</a>
                             `;
                         } else {
                             td.textContent = content;
@@ -499,7 +510,6 @@
             }
         }
 
-        // YENİ: Gerçek ve Tıklanabilir PDF Oluşturma Fonksiyonu
         function pdfIndir() {
             const element = document.getElementById('reportContainer');
             
@@ -508,23 +518,20 @@
                 return;
             }
 
-            // Çıktı anında Kırmızı (X) butonlarını ve Sayfa Sonu çizgilerini gizle
             const deleteBtns = element.querySelectorAll('.delete-col-btn');
             const pageBreaks = element.querySelectorAll('.page-break');
             deleteBtns.forEach(btn => btn.style.display = 'none');
             pageBreaks.forEach(pb => pb.style.display = 'none');
 
-            // Kütüphane Ayarları
             const opt = {
-                margin:       [10, 5, 10, 5], // Üst, Sol, Alt, Sağ boşluklar (mm)
+                margin:       [10, 5, 10, 5], 
                 filename:     'Emlak_Degerleme_Raporu.pdf',
                 image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { scale: 2, useCORS: true }, // scale: 2 yüksek çözünürlük sağlar
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }, // Dikey Format
-                pagebreak:    { mode: 'css', avoid: 'tr' } // CSS'teki page-break ayarlarını anlar
+                html2canvas:  { scale: 2, useCORS: true }, 
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: 'css', avoid: 'tr' } 
             };
 
-            // PDF'i oluştur ve indir, ardından butonları geri getir
             html2pdf().set(opt).from(element).save().then(() => {
                 deleteBtns.forEach(btn => btn.style.display = 'flex');
                 pageBreaks.forEach(pb => pb.style.display = 'block');
