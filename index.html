@@ -15,7 +15,7 @@
             --danger: #c0392b; 
             --light: #ecf0f1;
             --border: #bdc3c7;
-            --gemini: #673ab7; /* Gemini Moru */
+            --gemini: #673ab7; 
         }
 
         body {
@@ -26,7 +26,6 @@
             padding: 20px;
         }
 
-        /* --- KONTROL PANELİ --- */
         .control-panel {
             background: white;
             padding: 20px;
@@ -49,7 +48,7 @@
             font-size: 11px;
             margin-bottom: 10px;
             background: #fafafa;
-            box-sizing: border-box; /* Taşmayı önlemek için eklendi */
+            box-sizing: border-box; 
         }
 
         .btn {
@@ -70,7 +69,6 @@
         .btn-success { background: var(--accent); color: white; }
         .btn-danger { background: var(--danger); color: white; font-size: 11px; padding: 5px 10px; }
         
-        /* YENİ: Gemini Butonu Tasarımı */
         .btn-gemini { background: var(--gemini); color: white; }
         .btn-gemini:hover { background: #5e35b1; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
@@ -105,7 +103,6 @@
             flex-grow: 1;
         }
 
-        /* --- RAPOR ALANI --- */
         .report-section {
             background: transparent;
             margin: 0 auto;
@@ -133,7 +130,6 @@
             letter-spacing: 2px;
         }
 
-        /* --- TABLO TASARIMI --- */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -200,6 +196,7 @@
             color: var(--accent);
         }
         
+        /* Büyük, kalın ve emojiden arındırılmış sağlam link */
         .ad-link {
             text-decoration: underline;
             color: #2980b9;
@@ -236,7 +233,6 @@
                         <a href="https://gemini.google.com/" target="_blank" class="btn btn-gemini">✨ Gemini'yi Aç</a>
                         <span id="statusMsg" style="font-size:12px; color:green;"></span>
                     </div>
-                    
                 </div>
             </div>
             <div style="flex:1;">
@@ -267,7 +263,7 @@
 
     <script>
         let globalPortfolio = []; 
-        const STORAGE_KEY = 'emlak_portfoyu_v8';
+        const STORAGE_KEY = 'emlak_portfoyu_v8_fix';
 
         window.onload = function() {
             const savedData = localStorage.getItem(STORAGE_KEY);
@@ -428,17 +424,19 @@
                     const tdLabel = document.createElement('td');
                     tdLabel.className = 'col-feature';
                     
-                    tdLabel.textContent = featKey === "İlan No" ? "WEB LİNK" : featKey;
+                    // Görünmez boşluklara karşı trim() eklendi
+                    tdLabel.textContent = featKey.trim() === "İlan No" ? "WEB LİNK" : featKey;
                     tr.appendChild(tdLabel);
 
                     pageAds.forEach(ilan => {
                         const td = document.createElement('td');
                         let content = ilan.ozellikler[featKey] || '-';
                         
-                        if (featKey === "İlan No" && content.includes("#")) {
+                        // Emoji kaldırıldı, boşluk toleransı eklendi ve kısa link yapısı kullanıldı
+                        if (featKey.trim() === "İlan No" && content.includes("#")) {
                             const cleanId = content.replace('#', '').trim();
                             td.innerHTML = `
-                                <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link">İlana Git 👆</a>
+                                <a href="https://www.sahibinden.com/${cleanId}" target="_blank" class="ad-link">İlana Git</a>
                             `;
                         } else {
                             td.textContent = content;
@@ -452,7 +450,7 @@
                             let match = content.match(/\d+/);
                             if (match && parseInt(match[0]) === globalBestValues['Bina Yaşı']) td.classList.add('best-price');
                         } 
-                        else if ((featKey === 'Otopark' || featKey === 'otopark') && content !== '-') {
+                        else if ((featKey.toLowerCase().includes('otopark')) && content !== '-') {
                             if (content.toLowerCase().includes('kapalı')) td.classList.add('best-price');
                         }
 
