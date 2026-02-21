@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portföy Yönetim ve Karşılaştırma Sistemi</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root {
             --primary: #2c3e50; 
@@ -92,20 +95,21 @@
             flex-grow: 1;
         }
 
-        /* --- RAPOR ALANI --- */
+        /* --- RAPOR ALANI (Dikey ve Ferah Format) --- */
         .report-section {
-            background: white;
+            background: transparent;
             margin: 0 auto;
-            max-width: 297mm; 
+            max-width: 210mm; /* A4 Dikey Genişliği */
         }
 
         .report-page {
-            padding: 20px 40px;
+            padding: 30px;
             background: white;
             margin-bottom: 30px;
             box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            min-height: 190mm; 
             position: relative;
+            /* PDF kütüphanesinin sayfaları ayırması için kritik css: */
+            page-break-after: always;
         }
 
         .page-break {
@@ -120,34 +124,37 @@
             letter-spacing: 2px;
         }
 
+        /* --- TABLO TASARIMI (Okunabilirlik Artırıldı) --- */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-size: 14px; /* Yazı boyutu büyütüldü */
             table-layout: fixed; 
         }
 
         th, td {
             border: 1px solid #ccc;
-            padding: 8px;
+            padding: 15px 10px; /* Satır aralıkları ferahlatıldı */
             text-align: center;
             vertical-align: middle;
             word-wrap: break-word;
         }
 
         .col-feature {
-            width: 140px;
+            width: 130px;
             background-color: var(--primary);
             color: white;
             font-weight: bold;
             text-align: left;
+            font-size: 13px;
         }
 
         thead th {
             background-color: var(--secondary);
             color: white;
-            height: 50px;
+            height: 60px; /* Başlık alanı genişletildi */
             position: relative;
+            font-size: 15px;
         }
 
         .delete-col-btn {
@@ -157,18 +164,17 @@
             background: var(--danger);
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             border: 2px solid white;
             z-index: 10;
         }
 
-        /* Yeni Yıldız Vurgusu */
         .best-price {
             background-color: #e8f8f5 !important;
             color: var(--accent) !important;
@@ -181,69 +187,31 @@
             position: absolute;
             top: 2px;
             right: 4px;
-            font-size: 14px;
+            font-size: 16px;
             color: var(--accent);
         }
         
-        /* Ekranda buton gibi görünen link */
+        /* Müşterinin rahatça tıklayabileceği belirgin link */
         .ad-link {
-            text-decoration: none;
-            color: white;
-            background-color: #3498db;
+            text-decoration: underline;
+            color: #2980b9;
             font-weight: bold;
-            display: inline-block;
+            display: block;
             margin-top: 5px;
-            font-size: 11px;
-            padding: 4px 8px;
-            border-radius: 4px;
+            font-size: 12px;
         }
 
-        /* --- BASKI AYARLARI (YENİLENDİ) --- */
+        /* Klasik yazdırma menüsü engellendi (Çünkü kendi PDF motorumuzu kullanıyoruz) */
         @media print {
-            body { padding: 0; background: white; }
-            .control-panel, .page-break, .delete-col-btn { display: none !important; }
-            
-            .report-page {
-                box-shadow: none;
-                margin: 0;
-                padding: 5mm; /* Taşmayı önlemek için kenar boşlukları azaltıldı */
-                page-break-after: always; 
-                width: 100%;
-                max-width: 100%;
-                min-height: auto;
+            body::before {
+                content: "Lütfen yazdır menüsü yerine 'PDF İndir' butonunu kullanın!";
+                display: block;
+                font-size: 20px;
+                color: red;
+                text-align: center;
+                margin-top: 50px;
             }
-            .report-page:last-child { page-break-after: auto; }
-
-            /* Tablo sığdırma taktikleri */
-            table {
-                width: 100% !important;
-                table-layout: fixed !important;
-                font-size: 10px !important; /* Baskıda fontu küçült */
-            }
-            th, td {
-                padding: 4px !important; /* Hücre içini daralt */
-                word-wrap: break-word !important;
-                overflow-wrap: break-word !important;
-            }
-            .col-feature {
-                width: 18% !important; /* Özellikler sütunu çok yer kaplamasın */
-            }
-
-            /* PDF Okuyucular için %100 Çalışan Standart Link Formatı */
-            .ad-link {
-                text-decoration: underline !important;
-                color: #0000EE !important;
-                background-color: transparent !important;
-                padding: 0 !important;
-                display: inline !important;
-                font-weight: normal !important;
-            }
-
-            @page {
-                size: A4 landscape;
-                margin: 5mm; /* Zorunlu donanımsal boşluk */
-            }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .control-panel, .report-section { display: none !important; }
         }
     </style>
 </head>
@@ -273,9 +241,9 @@
             </div>
         </div>
         
-        <div style="border-top:1px solid #eee; margin-top:20px; padding-top:15px; display:flex; justify-content:space-between;">
-             <span style="font-size:12px; color:#666;">İpucu: Tabloda istemediğiniz sütunu, başlığındaki kırmızı (X) butonuna basarak kaldırabilirsiniz.</span>
-             <button class="btn btn-primary" onclick="window.print()">🖨️ PDF İndir / Yazdır</button>
+        <div style="border-top:1px solid #eee; margin-top:20px; padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
+             <span style="font-size:12px; color:#666;">İpucu: İstemediğiniz sütunu, başlığındaki kırmızı (X) butonuna basarak gizleyebilirsiniz.</span>
+             <button class="btn btn-primary" onclick="pdfIndir()" style="background-color: #8e44ad; font-size: 14px;">🖨️ PDF İndir</button>
         </div>
     </div>
 
@@ -287,7 +255,7 @@
 
     <script>
         let globalPortfolio = []; 
-        const STORAGE_KEY = 'emlak_portfoyu_v4';
+        const STORAGE_KEY = 'emlak_portfoyu_v5';
 
         window.onload = function() {
             const savedData = localStorage.getItem(STORAGE_KEY);
@@ -372,10 +340,8 @@
             const checkboxes = document.querySelectorAll('#portfolioList input[type="checkbox"]:checked');
             if (checkboxes.length === 0) { alert("Lütfen listeden en az bir ilan seçin."); return; }
 
-            // Seçili ilanları kopyala (orijinal veriyi bozmamak için derin kopya alıyoruz)
             const selectedAds = Array.from(checkboxes).map(cb => JSON.parse(JSON.stringify(globalPortfolio[cb.value])));
 
-            // 1. ADIM: "m² Fiyatı" hesapla ve özelliklere ekle
             selectedAds.forEach(ad => {
                 let fiyat = parseFloat((ad.ozellikler['Fiyat'] || '').replace(/\./g, '').replace(/[^0-9.]/g, ''));
                 let m2 = parseFloat((ad.ozellikler['m² (Net)'] || '').replace(/\./g, '').replace(/[^0-9.]/g, ''));
@@ -388,13 +354,12 @@
                 }
             });
 
-            // 2. ADIM: En iyi değerleri bul (Yeni Zeka)
             const globalBestValues = calculateBestValues(selectedAds);
-
             const container = document.getElementById('reportContainer');
             container.innerHTML = '';
 
-            const ADS_PER_PAGE = 6;
+            // YENİ: Sayfa başına 3 ilan
+            const ADS_PER_PAGE = 3; 
             const totalPages = Math.ceil(selectedAds.length / ADS_PER_PAGE);
 
             for (let page = 0; page < totalPages; page++) {
@@ -405,7 +370,7 @@
                 pageDiv.innerHTML = `
                     <div style="border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 20px; display:flex; justify-content:space-between; align-items:end;">
                         <div>
-                            <h1 style="margin:0; font-size:24px; color:var(--primary);">GAYRİMENKUL DEĞERLEME RAPORU</h1>
+                            <h1 style="margin:0; font-size:20px; color:var(--primary);">GAYRİMENKUL DEĞERLEME RAPORU</h1>
                             <div style="color:#7f8c8d; font-size:12px; margin-top:5px;">KARŞILAŞTIRMALI PİYASA ANALİZİ | Sayfa ${page + 1} / ${totalPages}</div>
                         </div>
                         <div style="text-align:right; font-size:12px; color:#666;">Tarih: ${date}</div>
@@ -420,7 +385,6 @@
                 const endIdx = startIdx + ADS_PER_PAGE;
                 const pageAds = selectedAds.slice(startIdx, endIdx);
 
-                // HEADER
                 const trHead = document.createElement('tr');
                 const thFeature = document.createElement('th');
                 thFeature.className = 'col-feature';
@@ -438,9 +402,7 @@
                 thead.appendChild(trHead);
                 table.appendChild(thead);
 
-                // BODY - Özellik Sıralamasını Ayarla ("m² Fiyatı" satırını "Fiyat"ın altına ekle)
                 let featureList = Object.keys(pageAds[0].ozellikler);
-                // m² Fiyatı'nı en sona eklendiği için onu alıp Fiyat'ın hemen sonrasına koyalım
                 featureList = featureList.filter(f => f !== 'm² Fiyatı');
                 let insertIdx = featureList.indexOf('Fiyat');
                 if (insertIdx !== -1) {
@@ -466,13 +428,13 @@
                             const cleanId = content.replace('#', '').trim();
                             td.innerHTML = `
                                 <div>${content}</div>
-                                <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link">İlana Git</a>
+                                <a href="https://www.sahibinden.com/ilan/${cleanId}/detay" target="_blank" class="ad-link">İlana Git 🔗</a>
                             `;
                         } else {
                             td.textContent = content;
                         }
 
-                        // --- YILDIZLAMA MANTIĞI ---
+                        // Yıldızlama
                         if (featKey === 'm² Fiyatı' && content !== '-') {
                             let val = parseFloat(content.replace(/\./g, '').replace(/[^0-9.]/g, ''));
                             if (!isNaN(val) && val === globalBestValues['m² Fiyatı']) td.classList.add('best-price');
@@ -497,27 +459,19 @@
                 if (page < totalPages - 1) {
                     const separator = document.createElement('div');
                     separator.className = 'page-break';
-                    separator.textContent = '--- Sayfa Sonu ---';
+                    separator.textContent = '--- Sayfa Sonu (Bu kısım PDF\'te görünmez) ---';
                     container.appendChild(separator);
                 }
             }
         }
 
-        // Yeni Zeka: "m² Fiyatı" ve "Bina Yaşı" için en iyi değerleri bulur
         function calculateBestValues(ads) {
-            let bests = {
-                'm² Fiyatı': Infinity,
-                'Bina Yaşı': Infinity
-            };
-            
+            let bests = { 'm² Fiyatı': Infinity, 'Bina Yaşı': Infinity };
             ads.forEach(ad => {
-                // 1. m² Fiyatı için en düşüğü bul
                 if (ad.ozellikler['m² Fiyatı'] && ad.ozellikler['m² Fiyatı'] !== '-') {
                     let val = parseFloat(ad.ozellikler['m² Fiyatı'].replace(/\./g, '').replace(/[^0-9.]/g, ''));
                     if (!isNaN(val) && val > 0 && val < bests['m² Fiyatı']) bests['m² Fiyatı'] = val;
                 }
-                
-                // 2. Bina Yaşı için en küçüğü bul (Örn: "11-15" arası ise "11"i alır)
                 if (ad.ozellikler['Bina Yaşı'] && ad.ozellikler['Bina Yaşı'] !== '-') {
                     let match = ad.ozellikler['Bina Yaşı'].match(/\d+/);
                     if (match) {
@@ -543,6 +497,38 @@
             if (table.rows[0].cells.length === 1) {
                table.closest('.report-page').style.display = 'none';
             }
+        }
+
+        // YENİ: Gerçek ve Tıklanabilir PDF Oluşturma Fonksiyonu
+        function pdfIndir() {
+            const element = document.getElementById('reportContainer');
+            
+            if(!element.innerHTML.trim() || element.innerHTML.includes('Lütfen yukarıdan')) {
+                alert("Lütfen önce raporu oluşturun.");
+                return;
+            }
+
+            // Çıktı anında Kırmızı (X) butonlarını ve Sayfa Sonu çizgilerini gizle
+            const deleteBtns = element.querySelectorAll('.delete-col-btn');
+            const pageBreaks = element.querySelectorAll('.page-break');
+            deleteBtns.forEach(btn => btn.style.display = 'none');
+            pageBreaks.forEach(pb => pb.style.display = 'none');
+
+            // Kütüphane Ayarları
+            const opt = {
+                margin:       [10, 5, 10, 5], // Üst, Sol, Alt, Sağ boşluklar (mm)
+                filename:     'Emlak_Degerleme_Raporu.pdf',
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true }, // scale: 2 yüksek çözünürlük sağlar
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }, // Dikey Format
+                pagebreak:    { mode: 'css', avoid: 'tr' } // CSS'teki page-break ayarlarını anlar
+            };
+
+            // PDF'i oluştur ve indir, ardından butonları geri getir
+            html2pdf().set(opt).from(element).save().then(() => {
+                deleteBtns.forEach(btn => btn.style.display = 'flex');
+                pageBreaks.forEach(pb => pb.style.display = 'block');
+            });
         }
     </script>
 </body>
