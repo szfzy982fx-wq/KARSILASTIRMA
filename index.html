@@ -15,6 +15,7 @@
             --danger: #c0392b; 
             --light: #ecf0f1;
             --border: #bdc3c7;
+            --gemini: #673ab7; /* Gemini Moru */
         }
 
         body {
@@ -48,6 +49,7 @@
             font-size: 11px;
             margin-bottom: 10px;
             background: #fafafa;
+            box-sizing: border-box; /* Taşmayı önlemek için eklendi */
         }
 
         .btn {
@@ -58,11 +60,19 @@
             font-weight: 600;
             font-size: 13px;
             transition: 0.2s;
+            display: inline-block;
+            text-align: center;
+            text-decoration: none;
+            box-sizing: border-box;
         }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--secondary); }
         .btn-success { background: var(--accent); color: white; }
         .btn-danger { background: var(--danger); color: white; font-size: 11px; padding: 5px 10px; }
+        
+        /* YENİ: Gemini Butonu Tasarımı */
+        .btn-gemini { background: var(--gemini); color: white; }
+        .btn-gemini:hover { background: #5e35b1; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
         .portfolio-list {
             display: grid;
@@ -95,15 +105,15 @@
             flex-grow: 1;
         }
 
-        /* --- RAPOR ALANI (Dikey ve Ferah Format) --- */
+        /* --- RAPOR ALANI --- */
         .report-section {
             background: transparent;
             margin: 0 auto;
-            max-width: 210mm; /* A4 Dikey Genişliği */
+            max-width: 210mm; 
         }
 
         .report-page {
-            padding: 20px; /* Taşmayı önlemek için 30px'ten 20px'e indirildi */
+            padding: 20px; 
             background: white;
             margin-bottom: 30px;
             box-shadow: 0 0 15px rgba(0,0,0,0.05);
@@ -123,17 +133,17 @@
             letter-spacing: 2px;
         }
 
-        /* --- TABLO TASARIMI (Taşmayı önlemek için boşluklar optimize edildi) --- */
+        /* --- TABLO TASARIMI --- */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px; /* Çok hafif küçültüldü */
+            font-size: 13px; 
             table-layout: fixed; 
         }
 
         th, td {
             border: 1px solid #ccc;
-            padding: 8px; /* DİKKAT: 15px'ten 8px'e düşürüldü, sayfa taşmasını kesin çözer */
+            padding: 8px; 
             text-align: center;
             vertical-align: middle;
             word-wrap: break-word;
@@ -151,7 +161,7 @@
         thead th {
             background-color: var(--secondary);
             color: white;
-            height: 45px; /* Başlık satırı biraz daraltıldı */
+            height: 45px; 
             position: relative;
             font-size: 14px;
         }
@@ -190,14 +200,13 @@
             color: var(--accent);
         }
         
-        /* Müşterinin rahatça tıklayabileceği büyük, çalışan link */
         .ad-link {
             text-decoration: underline;
             color: #2980b9;
-            font-weight: 900; /* Çok daha kalın */
+            font-weight: 900; 
             display: block;
             margin-top: 2px;
-            font-size: 15px; /* Tıklaması kolay olsun diye büyütüldü */
+            font-size: 15px; 
         }
 
         @media print {
@@ -221,8 +230,13 @@
                 <h3>1. Veri Girişi (JSON)</h3>
                 <div class="input-area">
                     <textarea id="jsonInput" placeholder="Sohbetten aldığınız JSON kodunu buraya yapıştırın..."></textarea>
-                    <button class="btn btn-primary" onclick="jsonHavuzaEkle()">📥 Havuza Ekle</button>
-                    <span id="statusMsg" style="font-size:12px; margin-left:10px; color:green;"></span>
+                    
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn btn-primary" onclick="jsonHavuzaEkle()">📥 Havuza Ekle</button>
+                        <a href="https://gemini.google.com/" target="_blank" class="btn btn-gemini">✨ Gemini'yi Aç</a>
+                        <span id="statusMsg" style="font-size:12px; color:green;"></span>
+                    </div>
+                    
                 </div>
             </div>
             <div style="flex:1;">
@@ -414,7 +428,6 @@
                     const tdLabel = document.createElement('td');
                     tdLabel.className = 'col-feature';
                     
-                    // YENİ: Başlıkta "İlan No" yerine "WEB LİNK" yazar
                     tdLabel.textContent = featKey === "İlan No" ? "WEB LİNK" : featKey;
                     tr.appendChild(tdLabel);
 
@@ -422,7 +435,6 @@
                         const td = document.createElement('td');
                         let content = ilan.ozellikler[featKey] || '-';
                         
-                        // YENİ: Sadece tıklanabilir "İlana Git" yazısı (Eski sade yapıya dönüldü)
                         if (featKey === "İlan No" && content.includes("#")) {
                             const cleanId = content.replace('#', '').trim();
                             td.innerHTML = `
@@ -432,7 +444,6 @@
                             td.textContent = content;
                         }
 
-                        // Yıldızlama
                         if (featKey === 'm² Fiyatı' && content !== '-') {
                             let val = parseFloat(content.replace(/\./g, '').replace(/[^0-9.]/g, ''));
                             if (!isNaN(val) && val === globalBestValues['m² Fiyatı']) td.classList.add('best-price');
